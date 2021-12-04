@@ -1,0 +1,11 @@
+html,body{
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+#chessboard{
+    height: 100px;
+    width: 100px;
+}
