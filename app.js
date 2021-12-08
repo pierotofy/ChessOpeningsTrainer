@@ -1,6 +1,14 @@
-function main(){
+function main(eco, color){
 
 const domBoard = document.getElementById('chessboard');
+const state = {
+    canGoBack: false,
+    canGoForward: true
+};
+
+const updateState = () => {
+    // TODO
+}
 
 const updateSize = () => {
     const w = window.innerWidth;
@@ -20,8 +28,11 @@ const updateSize = () => {
 }
 
 // Chess engine
-const game = new Chess();
-
+const DEFAULT_POSITION = {
+    'white': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    'black': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1'
+};
+const game = new Chess(DEFAULT_POSITION[color]);
 const calcDests = () => {
     const dests = new Map();
 
@@ -49,16 +60,9 @@ const uciToMove = (uci) => {
     return result;
 };
 
-const playOtherSide = (orig, dest) => {
-    // Update chess.js
-    // Note: we don't check the return value here which would tell
-    // us if this is a legal move.  That's because we only allowed legal moves by setting "dests"
-    // on the board.
-    game.move({from: orig, to: dest});
-    
+const updateCg = () => {
     cg.set({
-        // I'm not sure what this does! You can comment it out and not much changes
-        // turnColor: toColor(chess),
+        turnColor:  game.turn() === 'w' ? 'white' : 'black',
         
         // this highlights the checked king in red
         check: game.in_check(),
@@ -71,29 +75,27 @@ const playOtherSide = (orig, dest) => {
             dests: calcDests()
         }
     });
+}
+
+const playOtherSide = (orig, dest) => {
+    game.move({from: orig, to: dest});
+    updateCg();
 };
 
-const playMove = (orig, dest) => {
+const playMove = (orig, dest, undo = false) => {
     cg.move(orig, dest);
-    game.move({from: orig, to: dest});
-    cg.set({
-        // this highlights the checked king in red
-        check: game.in_check(),
-        
-        movable: {
-            // Only allow moves by whoevers turn it is
-            color: game.turn() === 'w' ? 'white' : 'black',
-            
-            // Only allow legal moves
-            dests: calcDests()
-        }
-    });
+
+    if (undo) game.undo();
+    else game.move({from: orig, to: dest});
+
+    updateCg();
 };
 
 // Board
 const cg = Chessground(domBoard, {
+    orientation: color,
     movable: {
-        color: 'white',
+        color: "white",
         free: false, // don't allow movement anywhere ...
         dests: calcDests(),
         events: {
@@ -102,18 +104,57 @@ const cg = Chessground(domBoard, {
     }
 });
 
-const longOpenings = Openings.filter(o => o.uci.split(" ").length > 14);
-console.log(longOpenings);
+// const longOpenings = Openings.filter(o => o.uci.split(" ").length > 14);
+// console.log(longOpenings);
 
-const opening = Openings.find(o => o.name === "Sicilian Defense: Dragon Variation, Yugoslav Attack, Soltis Variation");
-opening.uci.split(" ").forEach(m => {
-    const [orig, dest] = uciToMove(m);
+const opening = Openings.find(o => o.eco === eco);
+if (!opening){
+    window.alert("Invalid opening: " + eco);
+    return;
+} 
+
+const moves = opening.uci.split(" ").map(uciToMove);
+let currentMove = -1;
+
+const playForward = () => {
+    if (currentMove >= moves.length - 1) return;
+    currentMove++;
+
+    const [orig, dest] = moves[currentMove];
     playMove(orig, dest);
-});
+};
+
+const playBack = () => {
+    if (currentMove < 0) return;
+
+    const [dest, orig] = moves[currentMove];
+    playMove(orig, dest, true);
+    
+    currentMove--;
+}
+
+if (color === 'white'){
+
+}else{
+    playForward();
+}
+
+// moves.forEach(move => {
+//     const [orig, dest] = move;
+//     playMove(orig, dest);
+// });
 
 updateSize();
 window.addEventListener('resize', updateSize);
 
-window.uciToMove = uciToMove;
+document.addEventListener('playForward', playForward);
+document.addEventListener('playBack', playBack);
+
+// Debug
+if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||
+    /localhost/.test(window.location.hostname)){
+    const debug = document.getElementById("debug");
+    debug.style.display = 'block';
+}
 
 }

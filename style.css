@@ -9,3 +9,20 @@ html,body{
     height: 100px;
     width: 100px;
 }
+
+#debug{
+    display: none;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    width: 120px;
+    padding: 4px;
+    border: 1px dashed black;
+}
+
+#debug button{
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+}
