@@ -13,8 +13,10 @@
 		6D66C78A2761A54900882CC4 /* WebModelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D66C7892761A54900882CC4 /* WebModelView.swift */; };
 		6D66C78D2761A5EA00882CC4 /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D66C78C2761A5EA00882CC4 /* WebViewContainer.swift */; };
 		6D66C7922761AAF000882CC4 /* MainScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D66C7912761AAF000882CC4 /* MainScene.swift */; };
-		6D66C7942761ACDE00882CC4 /* GameSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D66C7932761ACDE00882CC4 /* GameSelectionView.swift */; };
+		6D66C7942761ACDE00882CC4 /* OpeningSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D66C7932761ACDE00882CC4 /* OpeningSelectionView.swift */; };
 		6D66C7962761B0F000882CC4 /* board in Resources */ = {isa = PBXBuildFile; fileRef = 6D66C7952761B0F000882CC4 /* board */; };
+		6D66C7982762FE1C00882CC4 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D66C7972762FE1C00882CC4 /* BoardView.swift */; };
+		6D66C79A276301D500882CC4 /* Opening.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D66C799276301D500882CC4 /* Opening.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,8 +28,10 @@
 		6D66C7892761A54900882CC4 /* WebModelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebModelView.swift; sourceTree = "<group>"; };
 		6D66C78C2761A5EA00882CC4 /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
 		6D66C7912761AAF000882CC4 /* MainScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainScene.swift; sourceTree = "<group>"; };
-		6D66C7932761ACDE00882CC4 /* GameSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSelectionView.swift; sourceTree = "<group>"; };
+		6D66C7932761ACDE00882CC4 /* OpeningSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpeningSelectionView.swift; sourceTree = "<group>"; };
 		6D66C7952761B0F000882CC4 /* board */ = {isa = PBXFileReference; lastKnownFileType = folder; name = board; path = ../board; sourceTree = "<group>"; };
+		6D66C7972762FE1C00882CC4 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
+		6D66C799276301D500882CC4 /* Opening.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Opening.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,7 +48,9 @@
 		6D66C75A275DAF8700882CC4 = {
 			isa = PBXGroup;
 			children = (
-				6D66C7932761ACDE00882CC4 /* GameSelectionView.swift */,
+				6D66C799276301D500882CC4 /* Opening.swift */,
+				6D66C7972762FE1C00882CC4 /* BoardView.swift */,
+				6D66C7932761ACDE00882CC4 /* OpeningSelectionView.swift */,
 				6D66C7912761AAF000882CC4 /* MainScene.swift */,
 				6D66C788275DBAFB00882CC4 /* chessopeningstrainer (iOS).entitlements */,
 				6D66C785275DB18900882CC4 /* ChessOpeningsTrainerApp.swift */,
@@ -135,9 +141,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D66C79A276301D500882CC4 /* Opening.swift in Sources */,
+				6D66C7982762FE1C00882CC4 /* BoardView.swift in Sources */,
 				6D66C773275DAF8900882CC4 /* chessopeningstrainer.xcdatamodeld in Sources */,
 				6D66C78D2761A5EA00882CC4 /* WebViewContainer.swift in Sources */,
-				6D66C7942761ACDE00882CC4 /* GameSelectionView.swift in Sources */,
+				6D66C7942761ACDE00882CC4 /* OpeningSelectionView.swift in Sources */,
 				6D66C7922761AAF000882CC4 /* MainScene.swift in Sources */,
 				6D66C78A2761A54900882CC4 /* WebModelView.swift in Sources */,
 				6D66C786275DB18900882CC4 /* ChessOpeningsTrainerApp.swift in Sources */,

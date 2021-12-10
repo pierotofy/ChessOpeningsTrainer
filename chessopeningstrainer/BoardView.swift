@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct GameSelectionView: View{
+struct BoardView: View{
     @ObservedObject var webViewModel = WebViewModel()
         
     
@@ -40,8 +40,8 @@ struct GameSelectionView: View{
     }
 }
 
-struct GameSelectionScene_Previews: PreviewProvider{
+struct BoardView_Previews: PreviewProvider{
     static var previews: some View{
-        GameSelectionView()
+        BoardView()
     }
 }
