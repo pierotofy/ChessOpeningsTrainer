@@ -12,7 +12,8 @@ struct Opening: Identifiable {
     let name: String
     var variations: [Opening]? = nil
 
-    static let dragon = Opening(id: "A00", name: "Dragon Variation very long name indeed wow there are a lot of variations here")
+    static let test = Opening(id: "A02", name: "Test")
+    static let dragon = Opening(id: "A00", name: "Dragon Variation very long name indeed wow there are a lot of variations here", variations: [Opening.test])
 
     static let sicilian = Opening(id: "A01", name: "Sicilian Defense", variations: [Opening.dragon])
 }
