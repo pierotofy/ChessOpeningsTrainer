@@ -10,29 +10,44 @@ import SwiftUI
 
 struct OpeningSelectionView: View{
     @State private var searchText = ""
+    private var opModel: OpeningsModel = OpeningsModel()
     
-    let openings: [Opening] = [.sicilian]
+    private var openings: [Opening] {
+        if !searchText.isEmpty {
+            return opModel.openings.filter { $0.name.contains(searchText)
+                
+            }
+        } else {
+            return opModel.openings
+        }
+    }
+    
     
     var body: some View{
         NavigationView{
-           List(openings, children: \.variations) { o in
-                   Image(systemName: "checkerboard.shield")
-                   Text(o.name)
-                   Button(action: {
-                       print(o.name)
-                   }){
-                       Image(systemName: "arrowtriangle.right.circle.fill")
-                   }
-                   .buttonStyle(.borderedProminent)
-                   .tint(.green)
-                   .frame(maxWidth: .infinity, alignment: .trailing)
-                   .padding(.trailing, 10)
-               
-           }
-           
-           .searchable(text: $searchText)
-                .navigationBarHidden(true)
-        }
+            List(openings, children: \.variations) { o in
+                VStack(alignment: .leading){
+                    Text(o.name)
+                    Text(o.pgn).font(.footnote).foregroundColor(.gray)
+                    }
+                
+                HStack(alignment: .center){
+                       Button(action: {
+                           print(o.name)
+                       }){
+                           Image(systemName: "arrowtriangle.right.circle.fill")
+                       }
+                       .buttonStyle(.borderedProminent)
+                       .tint(.green)
+                       .padding(.trailing, 10)
+                }.frame(maxWidth: .infinity, alignment: .trailing)
+                
+
+            }
+            
+            .navigationTitle("Chess Openings")
+            .searchable(text: $searchText)
+        }.navigationViewStyle(.stack)
     }
 }
 
