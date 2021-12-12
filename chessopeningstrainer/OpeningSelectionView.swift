@@ -10,6 +10,7 @@ import SwiftUI
 
 struct OpeningSelectionView: View{
     @State private var searchText = ""
+    @State private var selectedOpening: Opening?
     private var opModel: OpeningsModel = OpeningsModel()
     
     private var openings: [Opening] {
@@ -32,20 +33,27 @@ struct OpeningSelectionView: View{
                     }
                 
                 HStack(alignment: .center){
-                       Button(action: {
-                           print(o.name)
-                       }){
-                           Image(systemName: "arrowtriangle.right.circle.fill")
-                       }
-                       .buttonStyle(.borderedProminent)
-                       .tint(.green)
-                       .padding(.trailing, 10)
+                        Button(action: {
+                            print(o.name)
+                            self.selectedOpening = o
+                        }){
+                            Image(systemName: "arrowtriangle.right.circle.fill")
+                        }.background(NavigationLink(
+                            destination: BoardView(selectedOpening: o),
+                            tag: o,
+                            selection: $selectedOpening,
+                            label: { EmptyView() }
+                        ).hidden())
+                        .buttonStyle(.borderedProminent)
+                        .tint(.green)
+                        .padding(.trailing, 10)
+                    
                 }.frame(maxWidth: .infinity, alignment: .trailing)
                 
 
             }
             
-            .navigationTitle("Chess Openings")
+            .navigationTitle("Openings")
             .searchable(text: $searchText)
         }.navigationViewStyle(.stack)
     }

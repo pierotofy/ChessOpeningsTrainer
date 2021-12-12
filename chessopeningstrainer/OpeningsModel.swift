@@ -7,17 +7,16 @@
 
 import Foundation
 
-struct Opening: Identifiable, Decodable {
+struct Opening: Identifiable, Decodable, Hashable {
     let id = UUID()
     
     private enum CodingKeys: String, CodingKey {
-        case name, uci, pgn, depth, variations
+        case name, uci, pgn, variations
     }
     
     var name: String
     var uci: String
     var pgn: String
-    var depth: Int
     var variations: [Opening]? = []
 }
 

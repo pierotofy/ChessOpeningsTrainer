@@ -10,7 +10,7 @@ Openings.sort((a, b) => {
     return a.uci.length > b.uci.length ? 1 : -1;
 });
 
-function findVariations(op, openings, depth, mainName){
+function findVariations(op, openings, mainName){
     const addedUci = [];
     const variations = [];
 
@@ -26,9 +26,9 @@ function findVariations(op, openings, depth, mainName){
                 name = name.replace(/^\s*[,:]/, "").trim();
                 if (!name) name = op.name
                 
-                let childVars = findVariations(o, openings, depth + 1, mainName || op.name);
+                let childVars = findVariations(o, openings, mainName || op.name);
                 let curVar = {
-                    name, uci: o.uci, pgn: o.pgn, depth
+                    name, uci: o.uci, pgn: o.pgn
                 };
                 if (childVars.length > 0) curVar.variations = childVars;
                 
@@ -46,7 +46,7 @@ const root = findVariations({
     name: "",
     uci: "",
     pgn: ""
-}, Openings, 0);
+}, Openings);
 
 const outFile = path.resolve(path.join(__dirname, "..", "gen", "openings.json"));
 fs.writeFileSync(outFile, JSON.stringify(root), {encoding: 'utf8'});

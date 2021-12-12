@@ -10,10 +10,9 @@ import SwiftUI
 
 struct BoardView: View{
     @ObservedObject var webViewModel = WebViewModel()
-        
+    var selectedOpening: Opening
     
     var body: some View{
-        NavigationView {
             ZStack {
                 WebViewContainer(webViewModel: webViewModel)
                 if webViewModel.isLoading {
@@ -21,7 +20,7 @@ struct BoardView: View{
                         .frame(height: 30)
                 }
             }
-            .navigationBarTitle(Text(webViewModel.title), displayMode: .inline)
+            .navigationBarTitle(Text(selectedOpening.name), displayMode: .inline)
             .navigationBarItems(leading: Button(action: {
                 webViewModel.shouldGoBack.toggle()
             }, label: {
@@ -35,13 +34,12 @@ struct BoardView: View{
                 }
             })
             )
-        }
 
     }
 }
 
 struct BoardView_Previews: PreviewProvider{
     static var previews: some View{
-        BoardView()
+        BoardView(selectedOpening: Opening(name: "test", uci: "", pgn: ""))
     }
 }
