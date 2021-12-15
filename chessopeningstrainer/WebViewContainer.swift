@@ -10,6 +10,10 @@ import UIKit
 import WebKit
 
 struct WebViewContainer: UIViewRepresentable {
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        
+    }
+    
     class Coordinator: NSObject, WKNavigationDelegate {
         @ObservedObject private var webViewModel: WebViewModel
         private let parent: WebViewContainer
@@ -26,7 +30,6 @@ struct WebViewContainer: UIViewRepresentable {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             webViewModel.isLoading = false
             webViewModel.title = webView.title ?? ""
-            webViewModel.canGoBack = webView.canGoBack
         }
         
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -47,12 +50,5 @@ struct WebViewContainer: UIViewRepresentable {
         webView.load(request)
         
         return webView
-    }
-    
-    func updateUIView(_ uiView: WKWebView, context: Context) {
-        if webViewModel.shouldGoBack {
-            uiView.goBack()
-            webViewModel.shouldGoBack = false
-        }
     }
 }

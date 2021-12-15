@@ -3,8 +3,8 @@ import Foundation
 
 class WebViewModel: ObservableObject {
     @Published var isLoading: Bool = false
-    @Published var canGoBack: Bool = false
-    @Published var shouldGoBack: Bool = false
+    @Published var canPlayBack: Bool = false
+    @Published var canPlayFoward: Bool = true
     @Published var title: String = ""
     
     var url: URL

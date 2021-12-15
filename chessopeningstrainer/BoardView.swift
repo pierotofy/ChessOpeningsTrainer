@@ -13,6 +13,7 @@ struct BoardView: View{
     var selectedOpening: Opening
     
     var body: some View{
+        VStack{
             ZStack {
                 WebViewContainer(webViewModel: webViewModel)
                 if webViewModel.isLoading {
@@ -21,20 +22,30 @@ struct BoardView: View{
                 }
             }
             .navigationBarTitle(Text(selectedOpening.name), displayMode: .inline)
-            .navigationBarItems(leading: Button(action: {
-                webViewModel.shouldGoBack.toggle()
-            }, label: {
-                if webViewModel.canGoBack {
-                    Image(systemName: "arrow.left")
-                        .frame(width: 44, height: 44, alignment: .center)
-                        .foregroundColor(.black)
-                } else {
-                    EmptyView()
-                        .frame(width: 0, height: 0, alignment: .center)
-                }
-            })
-            )
-
+            .frame(maxHeight: .infinity, alignment: .leading)
+            
+            ControlGroup {
+                Button(action: {
+                    print("YO")
+                }){
+                    Image(systemName: "arrowtriangle.left.circle.fill")
+                    Text("Back")
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                    
+                }.buttonStyle(.bordered)
+                    .disabled(!webViewModel.canPlayBack)
+                
+                Button(action: {
+                    print("YO")
+                }){
+                    Text("Forward")
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                    Image(systemName: "arrowtriangle.right.circle.fill")
+                    
+                }.buttonStyle(.bordered)
+                    .disabled(!webViewModel.canPlayFoward)
+            }.controlGroupStyle(.navigation).padding()
+        }
     }
 }
 
