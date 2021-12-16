@@ -10,7 +10,7 @@ import SwiftUI
 
 struct OpeningSelectionView: View{
     @State private var searchText = ""
-    @State private var selectedOpening: Opening?
+    @State private var opening: Opening?
     private var opModel: OpeningsModel = OpeningsModel()
     
     private var openings: [Opening] {
@@ -34,14 +34,13 @@ struct OpeningSelectionView: View{
                 
                 HStack(alignment: .center){
                         Button(action: {
-                            print(o.name)
-                            self.selectedOpening = o
+                            self.opening = o
                         }){
                             Image(systemName: "arrowtriangle.right.circle.fill")
                         }.background(NavigationLink(
-                            destination: BoardView(selectedOpening: o),
+                            destination: BoardView(o),
                             tag: o,
-                            selection: $selectedOpening,
+                            selection: $opening,
                             label: { EmptyView() }
                         ).hidden())
                         .buttonStyle(.borderedProminent)
@@ -61,7 +60,6 @@ struct OpeningSelectionView: View{
 
 struct OpeningSelectionScene_Previews: PreviewProvider{
     static var previews: some View{
-        OpeningSelectionView()
-.previewInterfaceOrientation(.portrait)
+        OpeningSelectionView().previewInterfaceOrientation(.portrait)
     }
 }

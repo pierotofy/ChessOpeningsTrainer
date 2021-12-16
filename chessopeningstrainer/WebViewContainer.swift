@@ -10,10 +10,6 @@ import UIKit
 import WebKit
 
 struct WebViewContainer: UIViewRepresentable {
-    func updateUIView(_ uiView: WKWebView, context: Context) {
-        
-    }
-    
     class Coordinator: NSObject, WKNavigationDelegate {
         @ObservedObject private var webViewModel: WebViewModel
         private let parent: WebViewContainer
@@ -37,7 +33,42 @@ struct WebViewContainer: UIViewRepresentable {
         }
     }
     
+    class JSHandler: NSObject, WKScriptMessageHandler{
+        @ObservedObject private var webViewModel: WebViewModel
+        
+        init(_ webViewModel: WebViewModel){
+            self.webViewModel = webViewModel
+        }
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            if let messageBody = message.body as? String {
+                print("Received: \(messageBody)")
+                let components = messageBody.components(separatedBy: "=")
+                if components.count == 2 {
+                    let key = components[0];
+                    let value = components[1];
+                    print("Got: \(key) --> \(value)")
+                    
+                    switch key {
+                    case "canPlayForward":
+                        self.webViewModel.canPlayFoward = value == "true"
+                    case "canPlayBack":
+                        self.webViewModel.canPlayBack = value == "true"
+                    default:
+                        print("Unknown key \(key)")
+                    }
+                }else{
+                    print("Invalid message: \(messageBody)")
+                }
+            }
+        }
+    }
+    
     @ObservedObject var webViewModel: WebViewModel
+    private let webView = WKWebView()
+    
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        // Pass
+    }
     
     func makeCoordinator() -> WebViewContainer.Coordinator {
         Coordinator(self, webViewModel)
@@ -45,10 +76,22 @@ struct WebViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> WKWebView {
         let request = URLRequest(url: webViewModel.url)
-        let webView = WKWebView()
         webView.navigationDelegate = context.coordinator
+        webView.configuration.userContentController.add(JSHandler(webViewModel), name: "jsHandler")
         webView.load(request)
         
         return webView
+    }
+    
+    func dispatchEvent(_ eventName: String){
+        webView.evaluateJavaScript("_handleMessage('dispatchEvent', '\(eventName)')")
+    }
+    
+    func playForward(){
+        dispatchEvent("playForward")
+    }
+    
+    func playBack(){
+        dispatchEvent("playBack")
     }
 }

@@ -9,26 +9,35 @@ import Foundation
 import SwiftUI
 
 struct BoardView: View{
-    @ObservedObject var webViewModel = WebViewModel()
-    var selectedOpening: Opening
+    @ObservedObject var webViewModel: WebViewModel
+    var opening: Opening
+    let webView: WebViewContainer
+    
+    init(_ opening: Opening){
+        self.opening = opening
+        
+        let wvm = WebViewModel()
+        self.webViewModel = wvm
+        self.webView = WebViewContainer(webViewModel: wvm)
+    }
     
     var body: some View{
         VStack{
             ZStack {
-                WebViewContainer(webViewModel: webViewModel)
+                webView
                 if webViewModel.isLoading {
                     ProgressView()
                         .frame(height: 30)
                 }
             }
-            .navigationBarTitle(Text(selectedOpening.name), displayMode: .inline)
+            .navigationBarTitle(Text(opening.name), displayMode: .inline)
             .frame(maxHeight: .infinity, alignment: .leading)
             
             ControlGroup {
                 Button(action: {
-                    print("YO")
+                    webView.playBack()
                 }){
-                    Image(systemName: "arrowtriangle.left.circle.fill")
+                    Image(systemName: "chevron.left")
                     Text("Back")
                         .frame(minWidth: 0, maxWidth: .infinity)
                     
@@ -36,11 +45,11 @@ struct BoardView: View{
                     .disabled(!webViewModel.canPlayBack)
                 
                 Button(action: {
-                    print("YO")
+                    webView.playForward()
                 }){
                     Text("Forward")
                         .frame(minWidth: 0, maxWidth: .infinity)
-                    Image(systemName: "arrowtriangle.right.circle.fill")
+                    Image(systemName: "chevron.right")
                     
                 }.buttonStyle(.bordered)
                     .disabled(!webViewModel.canPlayFoward)
@@ -51,6 +60,6 @@ struct BoardView: View{
 
 struct BoardView_Previews: PreviewProvider{
     static var previews: some View{
-        BoardView(selectedOpening: Opening(name: "test", uci: "", pgn: ""))
+        BoardView(Opening(name: "test", uci: "", pgn: ""))
     }
 }

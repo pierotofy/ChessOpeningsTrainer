@@ -10,9 +10,6 @@ class WebViewModel: ObservableObject {
     var url: URL
     
     init() {
-        //self.url = url
-        
         self.url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "board")!
-        print(self.url)
     }
 }

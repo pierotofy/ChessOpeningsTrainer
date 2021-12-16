@@ -2,13 +2,33 @@ function main(eco, color){
 
 const domBoard = document.getElementById('chessboard');
 const state = {
-    canGoBack: false,
-    canGoForward: true
+    canPlayBack: false,
+    canPlayForward: true
 };
 
-const updateState = () => {
-    // TODO
+// Webkit
+let _sendMessage = (key, value) => {
+    console.log(key, key);
+};
+
+if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.jsHandler){
+    _sendMessage = (key, value) => {
+        if (value === undefined) value = "";
+        window.webkit.messageHandlers.jsHandler.postMessage(`${key}=${value}`);
+    }
 }
+
+window._handleMessage = (key, value) => {
+    if (key === "dispatchEvent") document.dispatchEvent(new Event(value));
+};
+
+const broadcastState = () => {
+    for (let k in state){
+        _sendMessage(`${k}`, `${state[k]}`);
+    }
+}
+
+broadcastState();
 
 const updateSize = () => {
     const w = window.innerWidth;
@@ -116,12 +136,19 @@ if (!opening){
 const moves = opening.uci.split(" ").map(uciToMove);
 let currentMove = -1;
 
+const updateState = () => {
+    state.canPlayBack = currentMove >= 0;
+    state.canPlayForward = currentMove < moves.length - 1;
+    broadcastState();
+}
+
 const playForward = () => {
     if (currentMove >= moves.length - 1) return;
     currentMove++;
 
     const [orig, dest] = moves[currentMove];
     playMove(orig, dest);
+    updateState();
 };
 
 const playBack = () => {
@@ -131,6 +158,7 @@ const playBack = () => {
     playMove(orig, dest, true);
     
     currentMove--;
+    updateState();
 }
 
 if (color === 'white'){
