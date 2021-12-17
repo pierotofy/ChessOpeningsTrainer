@@ -1,9 +1,22 @@
-function main(eco, color){
+function main(){
+
+// ==== INIT ====
+function parseQueryParams(){
+    let search = location.search.substring(1);
+    if (!search) return {};
+    return JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+}
+
+let { uci, color } = parseQueryParams();
+if (!uci) throw new Error("UCI is required");
+if (!color) color = "white";
+
 
 const domBoard = document.getElementById('chessboard');
 const state = {
     canPlayBack: false,
-    canPlayForward: true
+    canPlayForward: true,
+    currentMove: -1
 };
 
 // Webkit
@@ -23,12 +36,11 @@ window._handleMessage = (key, value) => {
 };
 
 const broadcastState = () => {
-    for (let k in state){
+    const keys = ['canPlayBack', 'canPlayForward'];
+    for (let k of keys){
         _sendMessage(`${k}`, `${state[k]}`);
     }
 }
-
-broadcastState();
 
 const updateSize = () => {
     const w = window.innerWidth;
@@ -124,53 +136,38 @@ const cg = Chessground(domBoard, {
     }
 });
 
-// const longOpenings = Openings.filter(o => o.uci.split(" ").length > 14);
-// console.log(longOpenings);
-
-const opening = Openings.find(o => o.eco === eco);
-if (!opening){
-    window.alert("Invalid opening: " + eco);
-    return;
-} 
-
-const moves = opening.uci.split(" ").map(uciToMove);
-let currentMove = -1;
+const moves = uci.split(" ").map(uciToMove);
 
 const updateState = () => {
-    state.canPlayBack = currentMove >= 0;
-    state.canPlayForward = currentMove < moves.length - 1;
+    state.canPlayBack = state.currentMove >= 0;
+    state.canPlayForward = state.currentMove < moves.length - 1;
     broadcastState();
 }
 
 const playForward = () => {
-    if (currentMove >= moves.length - 1) return;
-    currentMove++;
+    if (state.currentMove >= moves.length - 1) return;
+    state.currentMove++;
 
-    const [orig, dest] = moves[currentMove];
+    const [orig, dest] = moves[state.currentMove];
     playMove(orig, dest);
     updateState();
 };
 
 const playBack = () => {
-    if (currentMove < 0) return;
+    if (state.currentMove < 0) return;
 
-    const [dest, orig] = moves[currentMove];
+    const [dest, orig] = moves[state.currentMove];
     playMove(orig, dest, true);
     
-    currentMove--;
+    state.currentMove--;
     updateState();
 }
 
-if (color === 'white'){
+// if (color === 'white'){
 
-}else{
-    playForward();
-}
-
-// moves.forEach(move => {
-//     const [orig, dest] = move;
-//     playMove(orig, dest);
-// });
+// }else{
+//     playForward();
+// }
 
 updateSize();
 window.addEventListener('resize', updateSize);
@@ -184,5 +181,20 @@ if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||
     const debug = document.getElementById("debug");
     debug.style.display = 'block';
 }
+
+// ==== END INIT ====
+
+// if (mode === "explore")
+
+// In explore mode we move to the last move
+
+moves.forEach(move => {
+    const [orig, dest] = move;
+    playMove(orig, dest);
+});
+state.currentMove = moves.length - 1;
+
+updateState();
+
 
 }

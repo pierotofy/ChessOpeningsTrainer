@@ -16,7 +16,7 @@ struct BoardView: View{
     init(_ opening: Opening){
         self.opening = opening
         
-        let wvm = WebViewModel()
+        let wvm = WebViewModel(uci: opening.uci)
         self.webViewModel = wvm
         self.webView = WebViewContainer(webViewModel: wvm)
     }
@@ -56,15 +56,12 @@ struct BoardView: View{
                 .disabled(!webViewModel.canPlayFoward)
                 .background(.white)
             }.controlGroupStyle(.navigation).padding()
-                
-            
-                
         }.background(Image("BoardBackground").resizable(resizingMode: .tile))
     }
 }
 
 struct BoardView_Previews: PreviewProvider{
     static var previews: some View{
-        BoardView(Opening(name: "test", uci: "", pgn: ""))
+        BoardView(Opening(name: "test", uci: "e2e4", pgn: ""))
     }
 }
