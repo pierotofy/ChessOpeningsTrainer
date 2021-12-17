@@ -80,6 +80,10 @@ struct WebViewContainer: UIViewRepresentable {
         webView.configuration.userContentController.add(JSHandler(webViewModel), name: "jsHandler")
         webView.load(request)
         
+        webView.isOpaque = false
+        webView.backgroundColor = .clear
+        webView.scrollView.backgroundColor = .clear
+        
         return webView
     }
     

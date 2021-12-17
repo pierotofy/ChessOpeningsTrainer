@@ -3,9 +3,11 @@ html,body{
     overflow: hidden;
     margin: 0;
     padding: 0;
+    background: transparent;
 }
 
 #chessboard{
+    box-shadow: 2px 2px 12px 0px #333;
     height: 100px;
     width: 100px;
 }

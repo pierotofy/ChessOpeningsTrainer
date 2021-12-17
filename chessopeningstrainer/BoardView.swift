@@ -42,7 +42,8 @@ struct BoardView: View{
                         .frame(minWidth: 0, maxWidth: .infinity)
                     
                 }.buttonStyle(.bordered)
-                    .disabled(!webViewModel.canPlayBack)
+                .disabled(!webViewModel.canPlayBack)
+                .background(.white)
                 
                 Button(action: {
                     webView.playForward()
@@ -52,9 +53,13 @@ struct BoardView: View{
                     Image(systemName: "chevron.right")
                     
                 }.buttonStyle(.bordered)
-                    .disabled(!webViewModel.canPlayFoward)
+                .disabled(!webViewModel.canPlayFoward)
+                .background(.white)
             }.controlGroupStyle(.navigation).padding()
-        }
+                
+            
+                
+        }.background(Image("BoardBackground").resizable(resizingMode: .tile))
     }
 }
 

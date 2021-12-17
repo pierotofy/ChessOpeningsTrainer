@@ -36,7 +36,7 @@ struct OpeningSelectionView: View{
                         Button(action: {
                             self.opening = o
                         }){
-                            Image(systemName: "arrowtriangle.right.circle.fill")
+                            Image(systemName: "magnifyingglass")
                         }.background(NavigationLink(
                             destination: BoardView(o),
                             tag: o,
@@ -55,6 +55,7 @@ struct OpeningSelectionView: View{
             .navigationTitle("Openings")
             .searchable(text: $searchText)
         }.navigationViewStyle(.stack)
+            
     }
 }
 

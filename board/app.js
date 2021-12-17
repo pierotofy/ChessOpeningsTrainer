@@ -33,7 +33,7 @@ broadcastState();
 const updateSize = () => {
     const w = window.innerWidth;
     const h = window.innerHeight;
-    const size = Math.min(w, h) + 4;
+    const size = Math.min(w, h) + 1;
 
     domBoard.style.width = size + 'px';
     domBoard.style.height = size + 'px';
