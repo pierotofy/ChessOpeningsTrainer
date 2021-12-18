@@ -11,13 +11,15 @@ let { uci, color } = parseQueryParams();
 if (!uci) throw new Error("UCI is required");
 if (!color) color = "white";
 
-
 const domBoard = document.getElementById('chessboard');
 const state = {
     canPlayBack: false,
     canPlayForward: true,
-    currentMove: -1
+    currentMove: -1,
+    mode: "explore"
 };
+
+const pieceStack = [];
 
 // Webkit
 let _sendMessage = (key, value) => {
@@ -66,6 +68,9 @@ const DEFAULT_POSITION = {
 };
 const game = new Chess(DEFAULT_POSITION[color]);
 const calcDests = () => {
+    // No moves allowed in explore mode
+    if (state.mode === "explore") return null;
+
     const dests = new Map();
 
     game.SQUARES.forEach(s => {
@@ -114,11 +119,55 @@ const playOtherSide = (orig, dest) => {
     updateCg();
 };
 
+const chessTypeToCgRole = {
+    "p": "pawn",
+    "r": "rook",
+    "n": "knight",
+    "b": "bishop",
+    "q": "queen",
+    "k": "king",
+};
+
+const chessPieceToCg = (piece) => {
+    const { type, color } = piece;
+    return {
+        role: chessTypeToCgRole[type], 
+        color: color === "w" ? "white" : "black"
+    };
+}
+
+const checkUndoCastle = (move) => {
+    const { flags, from } = move;
+    const kingCastle = flags.indexOf("k") !== -1;
+    const queenCastle = flags.indexOf("q") !== -1;
+    
+    if (kingCastle || queenCastle){
+        if (from === "e1"){
+            if (kingCastle) cg.move("f1", "h1");
+            else cg.move("d1", "a1");
+        }else if (from === "e8"){
+            if (kingCastle) cg.move("f8", "h8");
+            else cg.move("d8", "a8");
+        }else{
+            throw new Error(`Unexpected castle from ${from}`);
+        }
+    }
+}
+
 const playMove = (orig, dest, undo = false) => {
     cg.move(orig, dest);
 
-    if (undo) game.undo();
-    else game.move({from: orig, to: dest});
+    if (undo){
+        checkUndoCastle(game.undo());
+
+        let piece = pieceStack.pop();
+        if (piece){
+            cg.newPiece(chessPieceToCg(piece), orig);
+        }
+    }else{
+        pieceStack.push(game.get(dest));
+        game.move({from: orig, to: dest});
+    }
 
     updateCg();
 };
@@ -163,6 +212,15 @@ const playBack = () => {
     updateState();
 }
 
+const rewind = () => {
+    for (let i = state.currentMove; i >= 0; i--){
+        const [dest, orig] = moves[i];
+        playMove(orig, dest, true);
+    }
+    state.currentMove = -1;
+    updateState();
+}
+
 // if (color === 'white'){
 
 // }else{
@@ -174,12 +232,16 @@ window.addEventListener('resize', updateSize);
 
 document.addEventListener('playForward', playForward);
 document.addEventListener('playBack', playBack);
+document.addEventListener('rewind', rewind);
 
 // Debug
 if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||
     /localhost/.test(window.location.hostname)){
     const debug = document.getElementById("debug");
     debug.style.display = 'block';
+
+    window.cg = cg;
+    window.game = game;
 }
 
 // ==== END INIT ====

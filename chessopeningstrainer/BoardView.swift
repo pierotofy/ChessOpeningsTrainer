@@ -35,6 +35,17 @@ struct BoardView: View{
             
             ControlGroup {
                 Button(action: {
+                    webView.rewind()
+                }){
+                    Image(systemName: "arrow.counterclockwise")
+                    Text("Rewind")
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                    
+                }.buttonStyle(.bordered)
+                .disabled(!webViewModel.canPlayBack)
+                .background(.white)
+                
+                Button(action: {
                     webView.playBack()
                 }){
                     Image(systemName: "chevron.left")

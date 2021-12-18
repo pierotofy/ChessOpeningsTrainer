@@ -98,4 +98,8 @@ struct WebViewContainer: UIViewRepresentable {
     func playBack(){
         dispatchEvent("playBack")
     }
+    
+    func rewind(){
+        dispatchEvent("rewind")
+    }
 }
