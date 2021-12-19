@@ -7,16 +7,18 @@ function parseQueryParams(){
     return JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
 }
 
-let { uci, color } = parseQueryParams();
+let { uci, color, mode } = parseQueryParams();
 if (!uci) throw new Error("UCI is required");
 if (!color) color = "white";
+if (!mode) mode = "explore";
 
 const domBoard = document.getElementById('chessboard');
 const state = {
     canPlayBack: false,
     canPlayForward: true,
     currentMove: -1,
-    mode: "explore"
+    mode,
+    wrongMove: false
 };
 
 const pieceStack = [];
@@ -38,7 +40,7 @@ window._handleMessage = (key, value) => {
 };
 
 const broadcastState = () => {
-    const keys = ['canPlayBack', 'canPlayForward'];
+    const keys = ['canPlayBack', 'canPlayForward', 'mode'];
     for (let k of keys){
         _sendMessage(`${k}`, `${state[k]}`);
     }
@@ -100,6 +102,9 @@ const uciToMove = (uci) => {
 const updateCg = () => {
     cg.set({
         orientation: color,
+        highlight: {
+            lastMove: true
+        },
 
         turnColor:  game.turn() === 'w' ? 'white' : 'black',
         
@@ -116,9 +121,40 @@ const updateCg = () => {
     });
 }
 
-const playOtherSide = (orig, dest) => {
-    game.move({from: orig, to: dest});
-    updateCg();
+const checkPlayerMove = (orig, dest) => {
+    const playerMove = uciToMove(`${orig}${dest}`);
+    const correctMove = moves[state.currentMove + 1];
+
+    if (playerMove.join("") === correctMove.join("")){
+        cg.setAutoShapes([
+            {
+                orig: playerMove[0],
+                dest: playerMove[1],
+                brush: 'green'
+            }
+        ]);
+
+        game.move({from: orig, to: dest});
+        updateCg();
+        state.currentMove++;
+
+        // Play opponent's next move
+        playForward();
+    }else{
+        cg.setAutoShapes([
+            {
+                orig: playerMove[0],
+                dest: playerMove[1],
+                brush: 'red'
+            },{
+                orig: correctMove[0],
+                dest: correctMove[1],
+                brush: 'green'
+            }
+        ]);
+
+        state.wrongMove = playerMove;
+    }
 };
 
 const chessTypeToCgRole = {
@@ -211,7 +247,7 @@ const cg = Chessground(domBoard, {
         free: false, // don't allow movement anywhere ...
         dests: calcDests(),
         events: {
-            after: playOtherSide
+            after: checkPlayerMove
         }
     }
 });
@@ -250,6 +286,7 @@ const rewind = () => {
     }
     state.currentMove = -1;
     updateState();
+    cg.setAutoShapes([]);
 }
 
 const toggleColor = () => {
@@ -262,19 +299,44 @@ const toggleColor = () => {
     _sendMessage("toggledColor", color);
 }
 
-// if (color === 'white'){
+const resetTraining = (force) => {
+    if (state.mode !== "training") return;
+    if (state.wrongMove || (typeof force === "boolean" && force)){
+        if (state.wrongMove){
+            playMove(state.wrongMove[1], state.wrongMove[0], true); // Undo last move
+        }
 
-// }else{
-//     playForward();
-// }
+        state.wrongMove = false;
+
+        rewind();
+        cg.set({
+            highlight: {
+                lastMove: false
+            }
+        });
+        
+        if (color === 'black'){
+            playForward(); // White plays first move
+        }
+    }
+}
+
+const setTrainingMode = () => {
+    state.mode = "training";
+    resetTraining(true);
+};
+
 
 updateSize();
 window.addEventListener('resize', updateSize);
+domBoard.addEventListener('click', resetTraining);
+domBoard.addEventListener('ontouchstart', resetTraining);
 
 document.addEventListener('playForward', playForward);
 document.addEventListener('playBack', playBack);
 document.addEventListener('rewind', rewind);
-document.addEventListener('toggleColor', toggleColor)
+document.addEventListener('toggleColor', toggleColor);
+document.addEventListener('setTrainingMode', setTrainingMode);
 
 // Debug
 if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||
@@ -284,21 +346,22 @@ if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||
 
     window.cg = cg;
     window.game = game;
+    window.domBoard = domBoard;
 }
 
 // ==== END INIT ====
 
-// if (mode === "explore")
+if (state.mode === "explore"){
+    // In explore mode we move to the last move
+    moves.forEach(move => {
+        const [orig, dest] = move;
+        playMove(orig, dest);
+    });
+    state.currentMove = moves.length - 1;
 
-// In explore mode we move to the last move
-
-moves.forEach(move => {
-    const [orig, dest] = move;
-    playMove(orig, dest);
-});
-state.currentMove = moves.length - 1;
-
-updateState();
-
+    updateState();
+}else if (state.mode === "training"){
+    setTrainingMode();
+}
 
 }
