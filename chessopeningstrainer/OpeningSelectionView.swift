@@ -11,7 +11,7 @@ import SwiftUI
 struct OpeningSelectionView: View{
     @State private var searchText = ""
     @State private var opening: Opening?
-    private var opModel: OpeningsModel = OpeningsModel()
+    private var opModel = OpeningsModel()
     
     private var openings: [Opening] {
         if !searchText.isEmpty {
@@ -38,7 +38,7 @@ struct OpeningSelectionView: View{
                         }){
                             Image(systemName: "magnifyingglass")
                         }.background(NavigationLink(
-                            destination: BoardView(o),
+                            destination: BoardView(o, color: AppSettings.shared.color),
                             tag: o,
                             selection: $opening,
                             label: { EmptyView() }
@@ -54,6 +54,14 @@ struct OpeningSelectionView: View{
             
             .navigationTitle("Openings")
             .searchable(text: $searchText)
+            .toolbar{
+                Button(action: {
+                    
+                }){
+                    Image(systemName: "gearshape")
+                }
+            }
+            
         }.navigationViewStyle(.stack)
             
     }

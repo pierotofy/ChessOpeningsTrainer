@@ -23,7 +23,7 @@ const pieceStack = [];
 
 // Webkit
 let _sendMessage = (key, value) => {
-    console.log(key, key);
+    console.log(key, value);
 };
 
 if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.jsHandler){
@@ -99,6 +99,8 @@ const uciToMove = (uci) => {
 
 const updateCg = () => {
     cg.set({
+        orientation: color,
+
         turnColor:  game.turn() === 'w' ? 'white' : 'black',
         
         // this highlights the checked king in red
@@ -128,15 +130,17 @@ const chessTypeToCgRole = {
     "k": "king",
 };
 
-const chessPieceToCg = (piece) => {
-    const { type, color } = piece;
+const chessMoveToCgPiece = (move) => {
+    const { piece, color } = move;
     return {
-        role: chessTypeToCgRole[type], 
-        color: color === "w" ? "white" : "black"
+        role: chessTypeToCgRole[piece], 
+        color: color === "w" ? "black" : "white"
     };
 }
 
 const checkUndoCastle = (move) => {
+    if (!move) return;
+
     const { flags, from } = move;
     const kingCastle = flags.indexOf("k") !== -1;
     const queenCastle = flags.indexOf("q") !== -1;
@@ -154,6 +158,33 @@ const checkUndoCastle = (move) => {
     }
 }
 
+const checkTakePiece = (move) => {
+    if (!move) return;
+
+    const { flags, to } = move;
+    const enPassant = flags.indexOf("e") !== -1;
+    const stdCapture = flags.indexOf("c") !== -1;
+    const noCapture = flags.indexOf("n") !== -1;
+    
+    if (noCapture) return;
+
+    if (enPassant || stdCapture){
+        const p = chessMoveToCgPiece(move);
+
+        if (stdCapture) p.position = to;
+        else if (enPassant){
+            if (move.color === "w"){
+                p.position = to[0] + parseInt(to[1] - 1)
+            }else{
+                p.position = to[0] + parseInt(to[1] + 1);
+            }
+            cg.setPieces([[p.position, null]]); // Remove piece
+        }else return; // Should never happen
+        
+        return p;
+    }
+}
+
 const playMove = (orig, dest, undo = false) => {
     cg.move(orig, dest);
 
@@ -162,11 +193,11 @@ const playMove = (orig, dest, undo = false) => {
 
         let piece = pieceStack.pop();
         if (piece){
-            cg.newPiece(chessPieceToCg(piece), orig);
+            cg.newPiece(piece, piece.position);
         }
     }else{
-        pieceStack.push(game.get(dest));
-        game.move({from: orig, to: dest});
+        const move = game.move({from: orig, to: dest});
+        pieceStack.push(checkTakePiece(move));
     }
 
     updateCg();
@@ -221,6 +252,16 @@ const rewind = () => {
     updateState();
 }
 
+const toggleColor = () => {
+    if (color === "white"){
+        color = "black";
+    }else{
+        color = "white";
+    }
+    updateCg();
+    _sendMessage("toggledColor", color);
+}
+
 // if (color === 'white'){
 
 // }else{
@@ -233,6 +274,7 @@ window.addEventListener('resize', updateSize);
 document.addEventListener('playForward', playForward);
 document.addEventListener('playBack', playBack);
 document.addEventListener('rewind', rewind);
+document.addEventListener('toggleColor', toggleColor)
 
 // Debug
 if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||

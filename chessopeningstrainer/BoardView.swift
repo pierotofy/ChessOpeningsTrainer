@@ -13,10 +13,10 @@ struct BoardView: View{
     var opening: Opening
     let webView: WebViewContainer
     
-    init(_ opening: Opening){
+    init(_ opening: Opening, color: String){
         self.opening = opening
         
-        let wvm = WebViewModel(uci: opening.uci)
+        let wvm = WebViewModel(uci: opening.uci, color: color)
         self.webViewModel = wvm
         self.webView = WebViewContainer(webViewModel: wvm)
     }
@@ -32,11 +32,19 @@ struct BoardView: View{
             }
             .navigationBarTitle(Text(opening.name), displayMode: .inline)
             .frame(maxHeight: .infinity, alignment: .leading)
+            .toolbar{
+                HStack{
+                    Button(action: {}){
+                        Image(systemName: "play.circle")
+                    }
+                    Button(action: webView.toggleColor){
+                        Image(systemName: "circle.righthalf.filled")
+                    }
+                }
+            }
             
             ControlGroup {
-                Button(action: {
-                    webView.rewind()
-                }){
+                Button(action: webView.rewind){
                     Image(systemName: "arrow.counterclockwise")
                     Text("Rewind")
                         .frame(minWidth: 0, maxWidth: .infinity)
@@ -73,6 +81,6 @@ struct BoardView: View{
 
 struct BoardView_Previews: PreviewProvider{
     static var previews: some View{
-        BoardView(Opening(name: "test", uci: "e2e4", pgn: ""))
+        BoardView(Opening(name: "test", uci: "e2e4", pgn: ""), color: "white")
     }
 }

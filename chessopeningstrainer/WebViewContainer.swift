@@ -50,9 +50,11 @@ struct WebViewContainer: UIViewRepresentable {
                     
                     switch key {
                     case "canPlayForward":
-                        self.webViewModel.canPlayFoward = value == "true"
+                        webViewModel.canPlayFoward = value == "true"
                     case "canPlayBack":
-                        self.webViewModel.canPlayBack = value == "true"
+                        webViewModel.canPlayBack = value == "true"
+                    case "toggledColor":
+                        AppSettings.shared.color = value
                     default:
                         print("Unknown key \(key)")
                     }
@@ -87,8 +89,12 @@ struct WebViewContainer: UIViewRepresentable {
         return webView
     }
     
+    func sendMessage(_ key: String, value: String){
+        webView.evaluateJavaScript("_handleMessage('\(key)', '\(value)')")
+    }
+    
     func dispatchEvent(_ eventName: String){
-        webView.evaluateJavaScript("_handleMessage('dispatchEvent', '\(eventName)')")
+        sendMessage("dispatchEvent", value: eventName)
     }
     
     func playForward(){
@@ -101,5 +107,9 @@ struct WebViewContainer: UIViewRepresentable {
     
     func rewind(){
         dispatchEvent("rewind")
+    }
+    
+    func toggleColor(){
+        dispatchEvent("toggleColor")
     }
 }
