@@ -16,12 +16,12 @@ const domBoard = document.getElementById('chessboard');
 const state = {
     canPlayBack: false,
     canPlayForward: true,
-    currentMove: -1,
     mode,
-    wrongMove: false
+    resetTrainingOnTap: false
 };
 
 const pieceStack = [];
+const movesStack = [];
 
 // Webkit
 let _sendMessage = (key, value) => {
@@ -66,7 +66,7 @@ const updateSize = () => {
 // Chess engine
 const game = new Chess();
 const calcDests = () => {
-    // No moves allowed in explore mode
+    // No moves allowed in explore mode or when training is done
     if (state.mode === "explore") return null;
 
     const dests = new Map();
@@ -74,6 +74,15 @@ const calcDests = () => {
     game.SQUARES.forEach(s => {
       const ms = game.moves({square: s, verbose: true});
       if (ms.length) dests.set(s, ms.map(m => m.to));
+    });
+
+    return dests;
+}
+const noDests = () => {
+    const dests = new Map();
+
+    game.SQUARES.forEach(s => {
+      dests.set(s, []);
     });
 
     return dests;
@@ -119,7 +128,11 @@ const updateCg = () => {
 
 const checkPlayerMove = (orig, dest) => {
     const playerMove = uciToMove(`${orig}${dest}`);
-    const correctMove = moves[state.currentMove + 1];
+    const correctMove = moves[movesStack.length];
+
+    pieceStack.push(checkTakePiece(game.move({from: orig, to: dest})));
+    updateCg();
+    movesStack.push([orig, dest]);
 
     if (playerMove.join("") === correctMove.join("")){
         cg.setAutoShapes([
@@ -130,12 +143,10 @@ const checkPlayerMove = (orig, dest) => {
             }
         ]);
 
-        pieceStack.push(checkTakePiece(game.move({from: orig, to: dest})));
-        updateCg();
-        state.currentMove++;
-
         // Play opponent's next move
         playForward();
+
+        checkTrainingFinished();
     }else{
         cg.setAutoShapes([
             {
@@ -149,10 +160,8 @@ const checkPlayerMove = (orig, dest) => {
             }
         ]);
 
-        // TODO: does this handle castling, enpoissant?? probably not... fix it!
-        state.wrongMove = playerMove;
-
-        // add game.move... then check ...
+        state.resetTrainingOnTap = true;
+        stopMoves();
     }
 };
 
@@ -232,8 +241,8 @@ const playMove = (orig, dest, undo = false) => {
         }
     }else{
         const move = game.move({from: orig, to: dest});
-        console.log(move);
         pieceStack.push(checkTakePiece(move));
+        movesStack.push([orig, dest]);
     }
 
     updateCg();
@@ -255,36 +264,34 @@ const cg = Chessground(domBoard, {
 const moves = uci.split(" ").map(uciToMove);
 
 const updateState = () => {
-    state.canPlayBack = state.currentMove >= 0;
-    state.canPlayForward = state.currentMove < moves.length - 1;
+    state.canPlayBack = movesStack.length > 0;
+    state.canPlayForward = movesStack.length < moves.length;
     broadcastState();
 }
 
 const playForward = () => {
-    if (state.currentMove >= moves.length - 1) return;
-    state.currentMove++;
-
-    const [orig, dest] = moves[state.currentMove];
+    if (movesStack.length >= moves.length) return;
+    
+    const [orig, dest] = moves[movesStack.length];
     playMove(orig, dest);
     updateState();
 };
 
 const playBack = () => {
-    if (state.currentMove < 0) return;
+    if (movesStack.length <= 0) return;
 
-    const [dest, orig] = moves[state.currentMove];
+    const [dest, orig] = movesStack.pop();
     playMove(orig, dest, true);
     
-    state.currentMove--;
     updateState();
 }
 
 const rewind = () => {
-    for (let i = state.currentMove; i >= 0; i--){
-        const [dest, orig] = moves[i];
+    let move;
+    while (move = movesStack.pop()){
+        const [dest, orig] = move;
         playMove(orig, dest, true);
     }
-    state.currentMove = -1;
     updateState();
     cg.setAutoShapes([]);
 }
@@ -295,20 +302,20 @@ const toggleColor = () => {
     }else{
         color = "white";
     }
+    
     updateCg();
+    
+    if (mode === "training") setTrainingMode();
+    
     _sendMessage("toggledColor", color);
 }
 
 const resetTraining = (force) => {
     if (state.mode !== "training") return;
-    if (state.wrongMove || (typeof force === "boolean" && force)){
-        if (state.wrongMove){
-            playMove(state.wrongMove[1], state.wrongMove[0], true); // Undo last move
-        }
-
-        state.wrongMove = false;
-
+    if (state.resetTrainingOnTap || (typeof force === "boolean" && force)){
+        state.resetTrainingOnTap = false;
         rewind();
+
         cg.set({
             highlight: {
                 lastMove: false
@@ -317,26 +324,60 @@ const resetTraining = (force) => {
         
         if (color === 'black'){
             playForward(); // White plays first move
+            checkTrainingFinished();
         }
+    }
+}
+
+const stopMoves = () => {
+    cg.set({
+        movable: {
+            dests: noDests()
+        }
+    });
+}
+
+const checkTrainingFinished = () => {
+    if (movesStack.length === moves.length){
+        state.resetTrainingOnTap = true;
+        stopMoves();
+        _sendMessage("trainingFinished");
     }
 }
 
 const setTrainingMode = () => {
     state.mode = "training";
     resetTraining(true);
+
+    _sendMessage("setMode", state.mode);
+};
+
+const setExploreMode = () => {
+    state.mode = "explore";
+    rewind();
+
+    // In explore mode we move to the last move
+    moves.forEach(move => {
+        const [orig, dest] = move;
+        playMove(orig, dest);
+    });
+    
+    updateState();
+
+    _sendMessage("setMode", state.mode);
 };
 
 
 updateSize();
 window.addEventListener('resize', updateSize);
-domBoard.addEventListener('click', resetTraining);
-domBoard.addEventListener('ontouchstart', resetTraining);
+window.addEventListener('click', resetTraining);
 
 document.addEventListener('playForward', playForward);
 document.addEventListener('playBack', playBack);
 document.addEventListener('rewind', rewind);
 document.addEventListener('toggleColor', toggleColor);
 document.addEventListener('setTrainingMode', setTrainingMode);
+document.addEventListener('setExploreMode', setExploreMode);
 
 // Debug
 if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||
@@ -352,14 +393,7 @@ if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||
 // ==== END INIT ====
 
 if (state.mode === "explore"){
-    // In explore mode we move to the last move
-    moves.forEach(move => {
-        const [orig, dest] = move;
-        playMove(orig, dest);
-    });
-    state.currentMove = moves.length - 1;
-
-    updateState();
+    setExploreMode();
 }else if (state.mode === "training"){
     setTrainingMode();
 }

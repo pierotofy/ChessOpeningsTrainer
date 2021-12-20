@@ -7,6 +7,8 @@ class WebViewModel: ObservableObject {
     @Published var canPlayBack: Bool = false
     @Published var canPlayFoward: Bool = true
     @Published var title: String = ""
+    @Published var mode: String = "explore"
+    
     var url: URL
     
     init(uci: String, color: String) {

@@ -55,6 +55,8 @@ struct WebViewContainer: UIViewRepresentable {
                         webViewModel.canPlayBack = value == "true"
                     case "toggledColor":
                         AppSettings.shared.color = value
+                    case "setMode":
+                        webViewModel.mode = value
                     default:
                         print("Unknown key \(key)")
                     }
@@ -111,5 +113,13 @@ struct WebViewContainer: UIViewRepresentable {
     
     func toggleColor(){
         dispatchEvent("toggleColor")
+    }
+    
+    func setTrainingMode(){
+        dispatchEvent("setTrainingMode")
+    }
+    
+    func setExploreMode(){
+        dispatchEvent("setExploreMode")
     }
 }

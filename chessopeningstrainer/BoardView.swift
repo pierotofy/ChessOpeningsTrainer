@@ -34,8 +34,14 @@ struct BoardView: View{
             .frame(maxHeight: .infinity, alignment: .leading)
             .toolbar{
                 HStack{
-                    Button(action: {}){
-                        Image(systemName: "play.circle")
+                    Button(action: {
+                        if (webViewModel.mode == "explore"){
+                            webView.setTrainingMode();
+                        }else{
+                            webView.setExploreMode();
+                        }
+                    }){
+                        Image(systemName: webViewModel.mode == "explore" ? "play.circle" : "pause.circle")
                     }
                     Button(action: webView.toggleColor){
                         Image(systemName: "circle.righthalf.filled")
@@ -43,39 +49,42 @@ struct BoardView: View{
                 }
             }
             
-            ControlGroup {
-                Button(action: webView.rewind){
-                    Image(systemName: "arrow.counterclockwise")
-                    Text("Rewind")
-                        .frame(minWidth: 0, maxWidth: .infinity)
+            if webViewModel.mode == "explore"{
+                ControlGroup {
+                    Button(action: webView.rewind){
+                        Image(systemName: "arrow.counterclockwise")
+                        Text("Rewind")
+                            .frame(minWidth: 0, maxWidth: .infinity)
+                        
+                    }.buttonStyle(.bordered)
+                    .disabled(!webViewModel.canPlayBack)
+                    .background(.white)
                     
-                }.buttonStyle(.bordered)
-                .disabled(!webViewModel.canPlayBack)
-                .background(.white)
-                
-                Button(action: {
-                    webView.playBack()
-                }){
-                    Image(systemName: "chevron.left")
-                    Text("Back")
-                        .frame(minWidth: 0, maxWidth: .infinity)
+                    Button(action: {
+                        webView.playBack()
+                    }){
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                            .frame(minWidth: 0, maxWidth: .infinity)
+                        
+                    }.buttonStyle(.bordered)
+                    .disabled(!webViewModel.canPlayBack)
+                    .background(.white)
                     
-                }.buttonStyle(.bordered)
-                .disabled(!webViewModel.canPlayBack)
-                .background(.white)
-                
-                Button(action: {
-                    webView.playForward()
-                }){
-                    Text("Forward")
-                        .frame(minWidth: 0, maxWidth: .infinity)
-                    Image(systemName: "chevron.right")
-                    
-                }.buttonStyle(.bordered)
-                .disabled(!webViewModel.canPlayFoward)
-                .background(.white)
-            }.controlGroupStyle(.navigation).padding()
-        }.background(Image("BoardBackground").resizable(resizingMode: .tile))
+                    Button(action: {
+                        webView.playForward()
+                    }){
+                        Text("Forward")
+                            .frame(minWidth: 0, maxWidth: .infinity)
+                        Image(systemName: "chevron.right")
+                        
+                    }.buttonStyle(.bordered)
+                    .disabled(!webViewModel.canPlayFoward)
+                    .background(.white)
+                }.controlGroupStyle(.navigation).padding()
+            }
+            
+            }.background(Image("BoardBackground").resizable(resizingMode: .tile))
     }
 }
 
