@@ -64,11 +64,7 @@ const updateSize = () => {
 }
 
 // Chess engine
-const DEFAULT_POSITION = {
-    'white': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    'black': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1'
-};
-const game = new Chess(DEFAULT_POSITION[color]);
+const game = new Chess();
 const calcDests = () => {
     // No moves allowed in explore mode
     if (state.mode === "explore") return null;
@@ -134,7 +130,7 @@ const checkPlayerMove = (orig, dest) => {
             }
         ]);
 
-        game.move({from: orig, to: dest});
+        pieceStack.push(checkTakePiece(game.move({from: orig, to: dest})));
         updateCg();
         state.currentMove++;
 
@@ -153,7 +149,10 @@ const checkPlayerMove = (orig, dest) => {
             }
         ]);
 
+        // TODO: does this handle castling, enpoissant?? probably not... fix it!
         state.wrongMove = playerMove;
+
+        // add game.move... then check ...
     }
 };
 
@@ -233,6 +232,7 @@ const playMove = (orig, dest, undo = false) => {
         }
     }else{
         const move = game.move({from: orig, to: dest});
+        console.log(move);
         pieceStack.push(checkTakePiece(move));
     }
 
