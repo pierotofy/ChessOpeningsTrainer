@@ -8,7 +8,7 @@ const baseUrl = "https://en.wikibooks.org/w/api.php?redirects&origin=*&action=qu
 
 // Roughly based on https://github.com/ornicar/lila/blob/cc79e29cbf34f2753e2fadec5c006c134409d961/ui/analyse/src/wiki.ts
 const removeEmptyParagraph = html => html.replace(/<p>(<br \/>|\s|<br>)*<\/p>/g, '');
-const removeComments = html => html.replace(/<!--.*-->/g, "");
+const removeComments = html =>  html.replace(/<!--[\s\S]*-->/gm, "");
 const removeTableHeader = html => html.replace('<h2><span id="Theory_table">Theory table</span></h2>', '');
 const removeTableExpl = html =>
   html.replace(/For explanation of theory tables see theory table and for notation see algebraic notation.?/, '');
