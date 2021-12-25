@@ -11,6 +11,8 @@ import SwiftUI
 struct OpeningSelectionView: View{
     @State private var searchText = ""
     @State private var opening: Opening?
+    @State private var descrPgn: String = ""
+    
     private var opModel = OpeningsModel()
     
     private var openings: [Opening] {
@@ -25,6 +27,8 @@ struct OpeningSelectionView: View{
     
     
     var body: some View{
+        let showDescription = Binding(get: { descrPgn != "" }, set: { descrPgn = $0 ? descrPgn : "" })
+        
         NavigationView{
             List(openings, children: \.variations) { o in
                 VStack(alignment: .leading){
@@ -33,21 +37,31 @@ struct OpeningSelectionView: View{
                     }
                 
                 HStack(alignment: .center){
+                    if let _ = o.descr {
                         Button(action: {
-                            self.opening = o
+                            self.descrPgn = o.pgn
                         }){
-                            Image(systemName: "magnifyingglass")
-                        }.background(NavigationLink(
-                            destination: BoardView(o, color: AppSettings.shared.color),
-                            tag: o,
-                            selection: $opening,
-                            label: { EmptyView() }
-                        ).hidden())
+                            Image(systemName: "info.circle")
+                        }
                         .buttonStyle(.borderedProminent)
-                        .tint(.green)
-                        .padding(.trailing, 10)
+                        .tint(.blue)
+                    }
                     
+                    Button(action: {
+                        self.opening = o
+                    }){
+                        Image(systemName: "magnifyingglass")
+                    }.background(NavigationLink(
+                        destination: BoardView(o, color: AppSettings.shared.color),
+                        tag: o,
+                        selection: $opening,
+                        label: { EmptyView() }
+                    ).hidden())
+                    .buttonStyle(.borderedProminent)
+                    .tint(.green)
+                    .padding(.trailing, 10)
                 }.frame(maxWidth: .infinity, alignment: .trailing)
+               
                 
 
             }
@@ -63,7 +77,21 @@ struct OpeningSelectionView: View{
             }
             
         }.navigationViewStyle(.stack)
-            
+        .sheet(isPresented: showDescription, onDismiss: {
+        }){
+            VStack{
+                HStack{
+                    Spacer()
+                    Button(action: {
+                        descrPgn = ""
+                    }, label: {
+                        Image(systemName: "xmark.circle.fill")
+                    })
+                    .padding()
+                }
+                DescriptionView(pgn: descrPgn)
+            }
+        }
     }
 }
 

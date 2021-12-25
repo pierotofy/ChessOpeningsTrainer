@@ -20,6 +20,8 @@
 		6D66C79A276301D500882CC4 /* OpeningsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D66C799276301D500882CC4 /* OpeningsModel.swift */; };
 		6D66C79C2765A45000882CC4 /* gen in Resources */ = {isa = PBXBuildFile; fileRef = 6D66C79B2765A45000882CC4 /* gen */; };
 		6DC4ABE2276EE910007A68F0 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC4ABE1276EE910007A68F0 /* AppSettings.swift */; };
+		6DE4EC542777CFBA0050536F /* DescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DE4EC532777CFBA0050536F /* DescriptionView.swift */; };
+		6DE4EC562777D01D0050536F /* HtmlStringView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DE4EC552777D01D0050536F /* HtmlStringView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +40,8 @@
 		6D66C799276301D500882CC4 /* OpeningsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpeningsModel.swift; sourceTree = "<group>"; };
 		6D66C79B2765A45000882CC4 /* gen */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gen; path = ../gen; sourceTree = "<group>"; };
 		6DC4ABE1276EE910007A68F0 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		6DE4EC532777CFBA0050536F /* DescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionView.swift; sourceTree = "<group>"; };
+		6DE4EC552777D01D0050536F /* HtmlStringView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HtmlStringView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +58,8 @@
 		6D66C75A275DAF8700882CC4 = {
 			isa = PBXGroup;
 			children = (
+				6DE4EC552777D01D0050536F /* HtmlStringView.swift */,
+				6DE4EC532777CFBA0050536F /* DescriptionView.swift */,
 				6DC4ABE1276EE910007A68F0 /* AppSettings.swift */,
 				6D1DD054276C40E400101FBF /* URLQueryParams.swift */,
 				6D66C799276301D500882CC4 /* OpeningsModel.swift */,
@@ -160,6 +166,8 @@
 				6D66C78A2761A54900882CC4 /* WebViewModel.swift in Sources */,
 				6D66C786275DB18900882CC4 /* ChessOpeningsTrainerApp.swift in Sources */,
 				6D1DD055276C40E400101FBF /* URLQueryParams.swift in Sources */,
+				6DE4EC542777CFBA0050536F /* DescriptionView.swift in Sources */,
+				6DE4EC562777D01D0050536F /* HtmlStringView.swift in Sources */,
 				6DC4ABE2276EE910007A68F0 /* AppSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
