@@ -26,7 +26,6 @@ struct DescriptionView: View {
     var css: String = """
     <style type="text/css">
     body{
-        font-size: 300%;
         padding: 24px;
         font-family: -apple-system-body;
         

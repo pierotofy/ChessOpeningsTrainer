@@ -34,14 +34,12 @@ struct BoardView: View{
             .frame(maxHeight: .infinity, alignment: .leading)
             .toolbar{
                 HStack{
-                    Button(action: {
-                        if (webViewModel.mode == "explore"){
-                            webView.setTrainingMode();
-                        }else{
-                            webView.setExploreMode();
+                    if (opening.descr != nil){
+                        Button(action: {
+                            // Show description
+                        }){
+                            Image(systemName: "info.circle")
                         }
-                    }){
-                        Image(systemName: webViewModel.mode == "explore" ? "play.circle" : "pause.circle")
                     }
                     Button(action: webView.toggleColor){
                         Image(systemName: "circle.righthalf.filled")
@@ -49,40 +47,57 @@ struct BoardView: View{
                 }
             }
             
-            if webViewModel.mode == "explore"{
-                ControlGroup {
+            VStack{
+                HStack {
                     Button(action: webView.rewind){
                         Image(systemName: "arrow.counterclockwise")
                         Text("Rewind")
-                            .frame(minWidth: 0, maxWidth: .infinity)
+                            .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
                         
-                    }.buttonStyle(.bordered)
-                    .disabled(!webViewModel.canPlayBack)
-                    .background(.white)
+                    }.buttonStyle(.borderedProminent)
+                    .disabled(webViewModel.mode != "explore")
+                    .tint(.white)
+                    .foregroundColor(.black)
                     
                     Button(action: {
                         webView.playBack()
                     }){
                         Image(systemName: "chevron.left")
                         Text("Back")
-                            .frame(minWidth: 0, maxWidth: .infinity)
+                            .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
                         
-                    }.buttonStyle(.bordered)
-                    .disabled(!webViewModel.canPlayBack)
-                    .background(.white)
+                    }.buttonStyle(.borderedProminent)
+                    .disabled(webViewModel.mode != "explore")
+                    .tint(.white)
+                    .foregroundColor(.black)
                     
                     Button(action: {
                         webView.playForward()
                     }){
                         Text("Forward")
-                            .frame(minWidth: 0, maxWidth: .infinity)
+                            .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
                         Image(systemName: "chevron.right")
                         
-                    }.buttonStyle(.bordered)
-                    .disabled(!webViewModel.canPlayFoward)
-                    .background(.white)
-                }.controlGroupStyle(.navigation).padding()
+                    }.buttonStyle(.borderedProminent)
+                    .disabled(webViewModel.mode != "explore")
+                    .tint(.white)
+                    .foregroundColor(.black)
+                }.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             }
+            Button(action: {
+                if (webViewModel.mode == "explore"){
+                    webView.setTrainingMode();
+                }else{
+                    webView.setExploreMode();
+                }
+            }){
+                Image(systemName: webViewModel.mode == "explore" ? "play.circle" : "stop.circle")
+                Text(webViewModel.mode == "explore" ? "Start Training" : "Stop Training")
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 36)
+            }.buttonStyle(.borderedProminent)
+            .tint(.white)
+            .foregroundColor(.black)
+            .padding()
             
             }.background(Image("BoardBackground").resizable(resizingMode: .tile))
     }

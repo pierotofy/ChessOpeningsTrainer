@@ -13,16 +13,23 @@ if (!uci) uci = "";
 if (!color) color = "white";
 if (!mode) mode = "explore";
 
+let rankedOpenings = [];
+
 const loadOpeningsTree = (done) => {
-    if (window.RankedOpenings) done();
+    const onLoad = () => {
+        console.log("Loaded openings");
+        done(window.RankedOpenings);
+    };
+    if (window.RankedOpenings) onLoad();
     else{
         let script = document.createElement('script');
-        script.onload = done;
+        script.onload = onLoad;
         script.src = "gen/openings-ranked-tree.js";
         document.getElementsByTagName('head')[0].appendChild(script);
     }
 };
 
+const overlay = document.getElementById("overlay");
 const domBoard = document.getElementById('chessboard');
 const state = {
     canPlayBack: false,
@@ -324,6 +331,7 @@ const resetTraining = (force) => {
     if (state.mode !== "training") return;
     if (state.resetTrainingOnTap || (typeof force === "boolean" && force)){
         state.resetTrainingOnTap = false;
+        hideOverlay();
         rewind();
 
         cg.set({
@@ -339,13 +347,21 @@ const resetTraining = (force) => {
     }
 }
 
+const showOverlay = () => {
+    overlay.style.pointerEvents = "auto";
+}
+const hideOverlay = () => {
+    overlay.style.pointerEvents = "none";
+}
 const stopMoves = () => {
     cg.set({
         movable: {
             dests: noDests()
         }
     });
+    showOverlay();
 }
+
 
 const checkTrainingFinished = () => {
     if (movesStack.length === moves.length){
@@ -364,6 +380,7 @@ const setTrainingMode = () => {
 
 const setExploreMode = () => {
     state.mode = "explore";
+    hideOverlay();
     rewind();
 
     // In explore mode we move to the last move
@@ -377,12 +394,46 @@ const setExploreMode = () => {
     _sendMessage("setMode", state.mode);
 };
 
+const rankDisplay = (rank) => {
+    let v = rank.value / 100.0;
+    if (v >= 0) return `+${v}`;
+    else return `-${v}`;
+};
+
 const setTreeMode = () => {
-    loadOpeningsTree(() => {
+    loadOpeningsTree((openings) => {
         state.mode = "tree";
+        hideOverlay();
         rewind();
 
         console.log(window.RankedOpenings);
+
+        // Draw arrows
+        const arrows = [];
+        const circles = [];
+        const labels = [];
+
+        let brush = "blue";
+        openings.forEach(o => {
+            const moves = o.uci.split(" ").map(uciToMove);
+            arrows.push({
+                orig: moves[0][0],
+                dest: moves[0][1],
+                brush
+            });
+            circles.push({
+                orig: moves[0][1],
+                brush
+            });
+            labels.push({
+                orig: moves[0][1],
+                brush: "black",
+                customSvg: `<text class="rank" width="100" height="100" y="48" x="20">${rankDisplay(o.rank)}</text>`
+            });
+            brush = "green";
+        });
+
+        cg.setAutoShapes(arrows.concat(circles).concat(labels));
     
         _sendMessage("setMode", state.mode);
     });
@@ -391,7 +442,7 @@ const setTreeMode = () => {
 
 updateSize();
 window.addEventListener('resize', updateSize);
-window.addEventListener('click', resetTraining);
+overlay.addEventListener('click', resetTraining);
 
 document.addEventListener('playForward', playForward);
 document.addEventListener('playBack', playBack);
