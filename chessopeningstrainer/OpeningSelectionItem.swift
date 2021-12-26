@@ -21,6 +21,7 @@ struct OpeningSelectionItem: View{
                 if let rank = opening.rank {
                     Text(rank.toString())
                         .fixedSize(horizontal: false, vertical: true)
+                        .font(.system(.caption, design: .monospaced))
                 }else{
                     Image(systemName: "info.circle")
                 }
@@ -35,6 +36,7 @@ struct OpeningSelectionItem: View{
             }){
                 Text(rank.toString())
                     .fixedSize(horizontal: false, vertical: true)
+                    .font(.system(.caption, design: .monospaced))
             }
             .buttonStyle(.borderedProminent)
             .tint(.gray)
