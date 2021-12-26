@@ -8,9 +8,20 @@ function parseQueryParams(){
 }
 
 let { uci, color, mode } = parseQueryParams();
-if (!uci) throw new Error("UCI is required");
+if (mode !== "tree" && !uci) throw new Error("UCI is required");
+if (!uci) uci = "";
 if (!color) color = "white";
 if (!mode) mode = "explore";
+
+const loadOpeningsTree = (done) => {
+    if (window.RankedOpenings) done();
+    else{
+        let script = document.createElement('script');
+        script.onload = done;
+        script.src = "gen/openings-ranked-tree.js";
+        document.getElementsByTagName('head')[0].appendChild(script);
+    }
+};
 
 const domBoard = document.getElementById('chessboard');
 const state = {
@@ -303,9 +314,8 @@ const toggleColor = () => {
         color = "white";
     }
     
-    updateCg();
-    
     if (mode === "training") setTrainingMode();
+    else updateCg();
     
     _sendMessage("toggledColor", color);
 }
@@ -367,6 +377,17 @@ const setExploreMode = () => {
     _sendMessage("setMode", state.mode);
 };
 
+const setTreeMode = () => {
+    loadOpeningsTree(() => {
+        state.mode = "tree";
+        rewind();
+
+        console.log(window.RankedOpenings);
+    
+        _sendMessage("setMode", state.mode);
+    });
+};
+
 
 updateSize();
 window.addEventListener('resize', updateSize);
@@ -378,6 +399,7 @@ document.addEventListener('rewind', rewind);
 document.addEventListener('toggleColor', toggleColor);
 document.addEventListener('setTrainingMode', setTrainingMode);
 document.addEventListener('setExploreMode', setExploreMode);
+document.addEventListener('setTreeMode', setTreeMode);
 
 // Debug
 if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||
@@ -396,6 +418,8 @@ if (state.mode === "explore"){
     setExploreMode();
 }else if (state.mode === "training"){
     setTrainingMode();
+}else if (state.mode === "tree"){
+    setTreeMode();
 }
 
 }
