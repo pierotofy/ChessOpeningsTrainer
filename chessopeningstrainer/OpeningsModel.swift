@@ -7,16 +7,26 @@
 
 import Foundation
 
-struct Rank: Hashable{
+struct Rank: Hashable, Decodable
+{
     var type: String
-    var value: String
+    var value: Int
+    
+    func toString() -> String{
+        let v = String(format: "%.2f", Float(value) / 100.0)
+        if value >= 0{
+            return "+" + v
+        }else{
+            return v
+        }
+    }
 }
 
 struct Opening: Identifiable, Decodable, Hashable {
     let id = UUID()
     
     private enum CodingKeys: String, CodingKey {
-        case name, uci, pgn, variations, descr
+        case name, uci, pgn, variations, descr, rank
     }
     
     var name: String

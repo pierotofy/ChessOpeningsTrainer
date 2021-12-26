@@ -57,7 +57,7 @@ struct BoardView: View{
                     }.buttonStyle(.borderedProminent)
                     .disabled(webViewModel.mode != "explore")
                     .tint(.white)
-                    .foregroundColor(.black)
+                    .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
                     
                     Button(action: {
                         webView.playBack()
@@ -69,7 +69,7 @@ struct BoardView: View{
                     }.buttonStyle(.borderedProminent)
                     .disabled(webViewModel.mode != "explore")
                     .tint(.white)
-                    .foregroundColor(.black)
+                    .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
                     
                     Button(action: {
                         webView.playForward()
@@ -81,7 +81,7 @@ struct BoardView: View{
                     }.buttonStyle(.borderedProminent)
                     .disabled(webViewModel.mode != "explore")
                     .tint(.white)
-                    .foregroundColor(.black)
+                    .foregroundColor(webViewModel.canPlayFoward ? .black : .gray)
                 }.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             }
             Button(action: {

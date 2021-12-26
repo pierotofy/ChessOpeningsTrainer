@@ -380,7 +380,7 @@ const setTrainingMode = () => {
 
 const setExploreMode = () => {
     state.mode = "explore";
-    hideOverlay();
+    showOverlay();
     rewind();
 
     // In explore mode we move to the last move

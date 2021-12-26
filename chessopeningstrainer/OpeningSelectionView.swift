@@ -11,7 +11,7 @@ import SwiftUI
 struct OpeningSelectionView: View{
     @State private var searchText = ""
     @State private var opening: Opening?
-    @State private var descrPgn: String = ""
+    @State public var descrPgn: String = ""
     
     private var opModel = OpeningsModel()
     
@@ -37,15 +37,7 @@ struct OpeningSelectionView: View{
                     }
                 
                 HStack(alignment: .center){
-                    if let _ = o.descr {
-                        Button(action: {
-                            self.descrPgn = o.pgn
-                        }){
-                            Image(systemName: "info.circle")
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.blue)
-                    }
+                    OpeningSelectionItem(parent: self, opening: o)
                     
                     Button(action: {
                         self.opening = o
