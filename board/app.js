@@ -16,13 +16,14 @@ if (!mode) mode = "explore";
 const loadOpeningsTree = (done) => {
     const onLoad = () => {
         console.log("Loaded openings");
-        done(window.RankedOpenings);
+        done(window.OpeningMoves);
     };
-    if (window.RankedOpenings) onLoad();
+    if (window.OpeningMoves) onLoad();
     else{
         let script = document.createElement('script');
         script.onload = onLoad;
-        script.src = "gen/openings-ranked-tree.js";
+        script.src = "gen/openings-moves.js";
+        // script.src = "gen/om.js";
         document.getElementsByTagName('head')[0].appendChild(script);
     }
 };
@@ -34,9 +35,10 @@ const state = {
     canPlayForward: true,
     mode,
     resetTrainingOnTap: false,
-    treeVariations: []
+    treeMoves: []
 };
 
+let treeOpenings = [];
 const pieceStack = [];
 const movesStack = [];
 
@@ -96,14 +98,11 @@ const calcDests = () => {
         });
     }else if (state.mode === "tree"){
         // Only opening moves allowed
-        const currentMove = game.history().length;
+        // const currentMove = game.history().length;
         const validMoves = {};
 
-        state.treeVariations.forEach(o => {
-            const moves = getMoves(o.uci);
-            if (currentMove >= moves.length) return;
-
-            const move = moves[currentMove];
+        state.treeMoves.forEach(treeMove => {
+            const move = uciToMove(treeMove.move);
             if (!validMoves[move[0]]) validMoves[move[0]] = [move[1]];
             else validMoves[move[0]].push(move[1]);
         });
@@ -201,18 +200,12 @@ const checkPlayerMove = (orig, dest) => {
         }
     }else if (state.mode === "tree"){
         // Update tree variations
-        const prevMove = game.history().length - 1;
-        const o = state.treeVariations.find(o => {
-            const moves = getMoves(o.uci);
-            if (moves.length < prevMove - 1) return false;
-            if (!o.variations) return false; 
-            
-            return moves[prevMove][0] === orig && moves[prevMove][1] === dest;
-        });
+        state.treeMoves = (state.treeMoves.find(tm => tm.move === `${orig}${dest}`) || {}).moves;
 
-        if (!o) console.log("This should not have happend");
-        state.treeVariations = o.variations;
-        drawTreeVariations();
+        if (!state.treeMoves) console.log("TODO: END OF TREE!");
+        else{
+            drawTreeMoves();
+        }
     }
 };
 
@@ -447,6 +440,8 @@ const setExploreMode = () => {
 };
 
 const rankDisplay = (rank) => {
+    if (rank === "TODO") return "?";
+
     let v = rank / 100.0;
     if (v >= 0) return `+${v}`;
     else return `${v}`;
@@ -454,7 +449,7 @@ const rankDisplay = (rank) => {
 
 let brushes = ["blue", "green", "pink", "red", "grey"];
 
-const drawTreeVariations = () => {
+const drawTreeMoves = () => {
     const currentMove = game.history().length;
 
     // Draw arrows
@@ -462,26 +457,25 @@ const drawTreeVariations = () => {
     const circles = [];
     const labels = [];
     
-    console.log(state.treeVariations);
+    console.log(state.treeMoves);
     let i = 0;
-    state.treeVariations.forEach(o => {
-        const moves = getMoves(o.uci);
-        if (currentMove >= moves.length) return;
+    state.treeMoves.forEach(treeMove => {
+        const move = uciToMove(treeMove.move);
 
         const brush = i < brushes.length ? brushes[i] : brushes[brushes.length - 1];
 
         arrows.push({
-            orig: moves[currentMove][0],
-            dest: moves[currentMove][1],
+            orig: move[0],
+            dest: move[1],
             brush
         });
         circles.push({
-            orig: moves[currentMove][1],
+            orig: move[1],
             brush
         });
         labels.push({
-            orig: moves[currentMove][1],
-            customSvg: `<text class="rank" fill="${Colors[brush]}" width="100" height="100" y="${currentMove % 2 == 0 ? 48 : 62}" x="20">${rankDisplay(o.rank)}</text>`
+            orig: move[1],
+            customSvg: `<text class="rank" fill="${Colors[brush]}" width="100" height="100" y="${currentMove % 2 == 0 ? 48 : 62}" x="20">${rankDisplay(treeMove.rank)}</text>`
         });
         
         i += 1;
@@ -492,15 +486,19 @@ const drawTreeVariations = () => {
 };
 
 const setTreeMode = () => {
-    loadOpeningsTree((openings) => {
+    loadOpeningsTree((ops) => {
+        const { openings, moves } = ops;
+
         state.mode = "tree";
         hideOverlay();
         rewind();
-        state.treeVariations = openings;
 
-        console.log(window.RankedOpenings);
+        treeOpenings = openings;
+        state.treeMoves = moves;
+
+        console.log(window.OpeningMoves);
         
-        drawTreeVariations();
+        drawTreeMoves();
 
         _sendMessage("setMode", state.mode);
     });
