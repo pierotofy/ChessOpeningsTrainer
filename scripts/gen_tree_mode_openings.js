@@ -8,20 +8,20 @@ const MaxVariations = 5;
 let openings = JSON.parse(fs.readFileSync(input));
 
 const sortWhite = (a, b) => {
-    return a.rank.value < b.rank.value ? 1 : -1;
+    return a.rank < b.rank ? 1 : -1;
 };
 const sortBlack = (a, b) => {
-    return a.rank.value > b.rank.value ? 1 : -1;
+    return a.rank > b.rank ? 1 : -1;
 };
-const filterUnranked = o => {
-    return o.rank !== undefined && o.rank.type === "cp";
-}
+// const filterUnranked = o => {
+//     return o.rank !== undefined && o.rank.type === "cp";
+// }
+
+// TODO: filter openings that dont' have continuation?
 
 function traverse(ops, depth){
-    ops = ops.filter(filterUnranked);
+    //ops = ops.filter(filterUnranked);
 
-    ops.forEach(o => delete(o.bestv));
-    
     if (depth % 2 == 0) ops.sort(sortWhite);
     else ops.sort(sortBlack);
 

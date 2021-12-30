@@ -7,21 +7,6 @@
 
 import Foundation
 
-struct Rank: Hashable, Decodable
-{
-    var type: String
-    var value: Int
-    
-    func toString() -> String{
-        let v = String(format: "%.2f", Float(value) / 100.0)
-        if value >= 0{
-            return "+" + v
-        }else{
-            return v
-        }
-    }
-}
-
 struct Opening: Identifiable, Decodable, Hashable {
     let id = UUID()
     
@@ -34,7 +19,16 @@ struct Opening: Identifiable, Decodable, Hashable {
     var pgn: String
     var variations: [Opening]? = []
     var descr: Bool?
-    var rank: Rank?
+    var rank: Int
+    
+    func rankString() -> String{
+        let v = String(format: "%.2f", Float(rank) / 100.0)
+        if rank >= 0{
+            return "+" + v
+        }else{
+            return v
+        }
+    }
 }
 
 

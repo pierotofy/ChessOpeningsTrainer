@@ -18,23 +18,20 @@ struct OpeningSelectionItem: View{
             Button(action: {
                 parent.descrPgn = opening.pgn
             }){
-                if let rank = opening.rank {
-                    Text(rank.toString())
-                        .fixedSize(horizontal: false, vertical: true)
-                        .font(.system(.caption, design: .monospaced))
-                }else{
-                    Image(systemName: "info.circle")
-                }
+                Text(opening.rankString())
+                    .fixedSize(horizontal: false, vertical: true)
+                    .font(.system(.caption, design: .monospaced))
+                
             }
             .buttonStyle(.borderedProminent)
             .tint(.blue)
         
         }
-        else if let rank = opening.rank {
+        else {
             Button(action: {
                 // Nothing
             }){
-                Text(rank.toString())
+                Text(opening.rankString())
                     .fixedSize(horizontal: false, vertical: true)
                     .font(.system(.caption, design: .monospaced))
             }

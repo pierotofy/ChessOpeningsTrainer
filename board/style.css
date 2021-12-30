@@ -43,6 +43,7 @@ html,body{
     font-weight: bold;
     font-size: 160%;
     font-family: monospace;
+    text-shadow: -4px 0 white, 0 4px white, 4px 0 white, 0 -4px white;
 }
 
 .cg-wrap coords.ranks, .cg-wrap coords.files{

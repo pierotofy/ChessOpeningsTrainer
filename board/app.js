@@ -13,8 +13,6 @@ if (!uci) uci = "";
 if (!color) color = "white";
 if (!mode) mode = "explore";
 
-let rankedOpenings = [];
-
 const loadOpeningsTree = (done) => {
     const onLoad = () => {
         console.log("Loaded openings");
@@ -35,7 +33,8 @@ const state = {
     canPlayBack: false,
     canPlayForward: true,
     mode,
-    resetTrainingOnTap: false
+    resetTrainingOnTap: false,
+    treeVariations: []
 };
 
 const pieceStack = [];
@@ -88,11 +87,29 @@ const calcDests = () => {
     if (state.mode === "explore") return null;
 
     const dests = new Map();
+    
+    if (state.mode === "training"){
+        // All legal moves allowed
+        game.SQUARES.forEach(s => {
+          const ms = game.moves({square: s, verbose: true});
+          if (ms.length) dests.set(s, ms.map(m => m.to));
+        });
+    }else if (state.mode === "tree"){
+        // Only opening moves allowed
+        const currentMove = game.history().length;
+        const validMoves = {};
 
-    game.SQUARES.forEach(s => {
-      const ms = game.moves({square: s, verbose: true});
-      if (ms.length) dests.set(s, ms.map(m => m.to));
-    });
+        state.treeVariations.forEach(o => {
+            const moves = getMoves(o.uci);
+            if (currentMove >= moves.length) return;
+
+            const move = moves[currentMove];
+            if (!validMoves[move[0]]) validMoves[move[0]] = [move[1]];
+            else validMoves[move[0]].push(move[1]);
+        });
+
+        for (let m in validMoves) dests.set(m, validMoves[m]);
+    }
 
     return dests;
 }
@@ -146,40 +163,56 @@ const updateCg = () => {
 
 const checkPlayerMove = (orig, dest) => {
     const playerMove = uciToMove(`${orig}${dest}`);
-    const correctMove = moves[movesStack.length];
-
+    
     pieceStack.push(checkTakePiece(game.move({from: orig, to: dest})));
     updateCg();
     movesStack.push([orig, dest]);
+    
+    if (state.mode === "training"){
+        const correctMove = moves[movesStack.length];
+        if (playerMove.join("") === correctMove.join("")){
+            cg.setAutoShapes([
+                {
+                    orig: playerMove[0],
+                    dest: playerMove[1],
+                    brush: 'green'
+                }
+            ]);
+    
+            // Play opponent's next move
+            playForward();
+    
+            checkTrainingFinished();
+        }else{
+            cg.setAutoShapes([
+                {
+                    orig: playerMove[0],
+                    dest: playerMove[1],
+                    brush: 'red'
+                },{
+                    orig: correctMove[0],
+                    dest: correctMove[1],
+                    brush: 'green'
+                }
+            ]);
+    
+            state.resetTrainingOnTap = true;
+            stopMoves();
+        }
+    }else if (state.mode === "tree"){
+        // Update tree variations
+        const prevMove = game.history().length - 1;
+        const o = state.treeVariations.find(o => {
+            const moves = getMoves(o.uci);
+            if (moves.length < prevMove - 1) return false;
+            if (!o.variations) return false; 
+            
+            return moves[prevMove][0] === orig && moves[prevMove][1] === dest;
+        });
 
-    if (playerMove.join("") === correctMove.join("")){
-        cg.setAutoShapes([
-            {
-                orig: playerMove[0],
-                dest: playerMove[1],
-                brush: 'green'
-            }
-        ]);
-
-        // Play opponent's next move
-        playForward();
-
-        checkTrainingFinished();
-    }else{
-        cg.setAutoShapes([
-            {
-                orig: playerMove[0],
-                dest: playerMove[1],
-                brush: 'red'
-            },{
-                orig: correctMove[0],
-                dest: correctMove[1],
-                brush: 'green'
-            }
-        ]);
-
-        state.resetTrainingOnTap = true;
-        stopMoves();
+        if (!o) console.log("This should not have happend");
+        state.treeVariations = o.variations;
+        drawTreeVariations();
     }
 };
 
@@ -279,7 +312,26 @@ const cg = Chessground(domBoard, {
     }
 });
 
-const moves = uci.split(" ").map(uciToMove);
+// Setup colors
+const Colors = {
+    green: '#00b708',
+    pink: '#b700af',
+    blue: '#0057E9',
+    yellow: '#cb7200',
+    grey: '#4a4a4a',
+    red: '#b70000'
+};
+let cgBrushes = {};
+for (let k in Colors){
+    cgBrushes[k] = {key: k, color: Colors[k], opacity: 1, lineWidth: 10};
+}
+cg.set({drawable: { brushes: cgBrushes}});
+
+const getMoves = (uci) => {
+    return uci.split(" ").map(uciToMove);
+};
+
+const moves = getMoves(uci);
 
 const updateState = () => {
     state.canPlayBack = movesStack.length > 0;
@@ -395,9 +447,48 @@ const setExploreMode = () => {
 };
 
 const rankDisplay = (rank) => {
-    let v = rank.value / 100.0;
+    let v = rank / 100.0;
     if (v >= 0) return `+${v}`;
-    else return `-${v}`;
+    else return `${v}`;
+};
+
+let brushes = ["blue", "green", "pink", "red", "grey"];
+
+const drawTreeVariations = () => {
+    const currentMove = game.history().length;
+
+    // Draw arrows
+    const arrows = [];
+    const circles = [];
+    const labels = [];
+    
+    console.log(state.treeVariations);
+    let i = 0;
+    state.treeVariations.forEach(o => {
+        const moves = getMoves(o.uci);
+        if (currentMove >= moves.length) return;
+
+        const brush = i < brushes.length ? brushes[i] : brushes[brushes.length - 1];
+
+        arrows.push({
+            orig: moves[currentMove][0],
+            dest: moves[currentMove][1],
+            brush
+        });
+        circles.push({
+            orig: moves[currentMove][1],
+            brush
+        });
+        labels.push({
+            orig: moves[currentMove][1],
+            customSvg: `<text class="rank" fill="${Colors[brush]}" width="100" height="100" y="${currentMove % 2 == 0 ? 48 : 62}" x="20">${rankDisplay(o.rank)}</text>`
+        });
+        
+        i += 1;
+    });
+
+    cg.setAutoShapes(arrows.concat(circles).concat(labels));
+    updateCg();
 };
 
 const setTreeMode = () => {
@@ -405,36 +496,12 @@ const setTreeMode = () => {
         state.mode = "tree";
         hideOverlay();
         rewind();
+        state.treeVariations = openings;
 
         console.log(window.RankedOpenings);
+        
+        drawTreeVariations();
 
-        // Draw arrows
-        const arrows = [];
-        const circles = [];
-        const labels = [];
-
-        let brush = "blue";
-        openings.forEach(o => {
-            const moves = o.uci.split(" ").map(uciToMove);
-            arrows.push({
-                orig: moves[0][0],
-                dest: moves[0][1],
-                brush
-            });
-            circles.push({
-                orig: moves[0][1],
-                brush
-            });
-            labels.push({
-                orig: moves[0][1],
-                brush: "black",
-                customSvg: `<text class="rank" width="100" height="100" y="48" x="20">${rankDisplay(o.rank)}</text>`
-            });
-            brush = "green";
-        });
-
-        cg.setAutoShapes(arrows.concat(circles).concat(labels));
-    
         _sendMessage("setMode", state.mode);
     });
 };

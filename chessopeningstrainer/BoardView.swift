@@ -10,6 +10,8 @@ import SwiftUI
 
 struct BoardView: View{
     @ObservedObject var webViewModel: WebViewModel
+    @State public var descrPgn: String = ""
+    
     var opening: Opening
     let webView: WebViewContainer
     
@@ -22,6 +24,8 @@ struct BoardView: View{
     }
     
     var body: some View{
+        let showDescription = Binding(get: { descrPgn != "" }, set: { descrPgn = $0 ? descrPgn : "" })
+        
         VStack{
             ZStack {
                 webView
@@ -36,7 +40,7 @@ struct BoardView: View{
                 HStack{
                     if (opening.descr != nil){
                         Button(action: {
-                            // Show description
+                            descrPgn = opening.pgn
                         }){
                             Image(systemName: "info.circle")
                         }
@@ -100,11 +104,26 @@ struct BoardView: View{
             .padding()
             
             }.background(Image("BoardBackground").resizable(resizingMode: .tile))
+            .sheet(isPresented: showDescription, onDismiss: {
+            }){
+                VStack{
+                    HStack{
+                        Spacer()
+                        Button(action: {
+                            descrPgn = ""
+                        }, label: {
+                            Image(systemName: "xmark.circle.fill")
+                        })
+                        .padding()
+                    }
+                    DescriptionView(pgn: descrPgn)
+                }
+            }
     }
 }
 
 struct BoardView_Previews: PreviewProvider{
     static var previews: some View{
-        BoardView(Opening(name: "test", uci: "e2e4", pgn: ""), color: "white")
+        BoardView(Opening(name: "test", uci: "e2e4", pgn: "", rank: 50), color: "white")
     }
 }
