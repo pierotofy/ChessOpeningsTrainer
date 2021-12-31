@@ -3,8 +3,9 @@ import json
 import chess
 from itertools import product, permutations
 from functools import lru_cache
+from stockfish import Stockfish
 
-infile = os.path.join(os.path.dirname(__file__), "..", "gen", "openings.json")
+infile = os.path.join(os.path.dirname(__file__), "..", "gen", "openings-ranked.json")
 #infile = os.path.join(os.path.dirname(__file__), "..", "test-ops.json")
 outfile = os.path.join(os.path.dirname(__file__), "..", "board", "gen", "openings-moves.js")
 
@@ -76,6 +77,21 @@ for o in openings_list:
 
 print("Computed FEN dict")
 
+@lru_cache(maxsize=None)
+def evaluate(fen):
+    s = Stockfish(parameters={"Threads": 1})
+    s.set_fen_position(fen)
+    s.set_depth(20)
+    evaluation = s.get_evaluation()
+    if evaluation['type'] == 'cp':
+        rank = evaluation['value']
+    elif evaluation['type'] == 'mate':
+        rank = 9999 if evaluation['value'] > 0 else -9999
+    else:
+        print("Warning! Unknown rank type: %s" % evaluation['type'])
+        rank = None
+    return rank
+
 def get_moves_starting_with_at(starts_with_uci, depth):
     print(starts_with_uci, depth)
 
@@ -91,6 +107,8 @@ def get_moves_starting_with_at(starts_with_uci, depth):
     
     result = []
     b = chess.Board()
+    starting_moves = []
+
     if len(starts_with_uci) > 0:
         starting_moves = starts_with_uci.strip().split(" ")
         for m in starting_moves:
@@ -109,7 +127,7 @@ def get_moves_starting_with_at(starts_with_uci, depth):
 
         result.append({
             'move': m,
-            'rank': None,
+            'rank': evaluate(fen),
             'openings': fens.get(fen, []),
             'moves': get_moves_starting_with_at(uci_prefix + m, depth + 1)
         })
