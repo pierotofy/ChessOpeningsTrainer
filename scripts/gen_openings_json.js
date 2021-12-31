@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-const { exit } = require('process');
 
 const openingsJs = fs.readFileSync(path.join(__dirname, "..", "board", "vendor", "openings.js")).toString();
 
@@ -10,7 +9,7 @@ Openings.sort((a, b) => {
     return a.uci.length > b.uci.length ? 1 : -1;
 });
 
-function findVariations(op, openings, mainName){
+function findVariations(op, openings){
     const addedUci = [];
     const variations = [];
 
@@ -21,14 +20,9 @@ function findVariations(op, openings, mainName){
             // Need to add?
 
             if (!addedUci.find(au => o.uci.indexOf(au) === 0)){
-                let name = o.name.replace(op.name, "");
-                if (mainName) name = name.replace(mainName, "");
-                name = name.replace(/^\s*[,:]/, "").trim();
-                if (!name) name = op.name
-                
-                let childVars = findVariations(o, openings, mainName || op.name);
+                let childVars = findVariations(o, openings);
                 let curVar = {
-                    name, uci: o.uci, pgn: o.pgn
+                    name: o.name, uci: o.uci, pgn: o.pgn
                 };
                 if (childVars.length > 0) curVar.variations = childVars;
                 

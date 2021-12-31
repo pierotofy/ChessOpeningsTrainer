@@ -77,11 +77,12 @@ for o in openings_list:
 
 print("Computed FEN dict")
 
+s = Stockfish(parameters={"Threads": 4})
+    
 @lru_cache(maxsize=None)
 def evaluate(fen):
-    s = Stockfish(parameters={"Threads": 1})
     s.set_fen_position(fen)
-    s.set_depth(20)
+    s.set_depth(6)
     evaluation = s.get_evaluation()
     if evaluation['type'] == 'cp':
         rank = evaluation['value']

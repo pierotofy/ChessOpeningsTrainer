@@ -35,12 +35,15 @@ const state = {
     canPlayForward: true,
     mode,
     resetTrainingOnTap: false,
-    treeMoves: []
+    treeMoves: [],
+    maxTreeMoves: 5,
+    openingName: ""
 };
 
 let treeOpenings = [];
 const pieceStack = [];
 const movesStack = [];
+const oNamesStack = [];
 
 // Webkit
 let _sendMessage = (key, value) => {
@@ -59,7 +62,7 @@ window._handleMessage = (key, value) => {
 };
 
 const broadcastState = () => {
-    const keys = ['canPlayBack', 'canPlayForward', 'mode'];
+    const keys = ['canPlayBack', 'canPlayForward', 'mode', 'openingName'];
     for (let k of keys){
         _sendMessage(`${k}`, `${state[k]}`);
     }
@@ -200,10 +203,19 @@ const checkPlayerMove = (orig, dest) => {
         }
     }else if (state.mode === "tree"){
         // Update tree variations
-        state.treeMoves = (state.treeMoves.find(tm => tm.move === `${orig}${dest}`) || {}).moves;
+        const treeMove = state.treeMoves.find(tm => tm.move === `${orig}${dest}`);
+        const prevTree = state.treeMoves;
 
-        if (!state.treeMoves) console.log("TODO: END OF TREE!");
+        if (!treeMove) console.log("TODO: END OF TREE!");
         else{
+            if (treeMove && treeMove.openings.length > 0){
+                oNamesStack.push(treeOpenings[treeMove.openings[0]].name);
+            }else{
+                oNamesStack.push("");
+            }
+
+            state.treeMoves = topTreeMoves(treeMove.moves);
+            state.treeMoves.parent = prevTree;
             drawTreeMoves();
         }
     }
@@ -327,8 +339,16 @@ const getMoves = (uci) => {
 const moves = getMoves(uci);
 
 const updateState = () => {
-    state.canPlayBack = movesStack.length > 0;
-    state.canPlayForward = movesStack.length < moves.length;
+    if (state.mode === "tree"){
+        state.canPlayBack = movesStack.length > 0;
+        state.canPlayForward = false;
+    
+        if (oNamesStack.length > 0) state.openingName = oNamesStack[oNamesStack.length - 1];
+        else state.openingName = "";
+    }else{
+        state.canPlayBack = movesStack.length > 0;
+        state.canPlayForward = movesStack.length < moves.length;
+    }
     broadcastState();
 }
 
@@ -345,6 +365,17 @@ const playBack = () => {
 
     const [dest, orig] = movesStack.pop();
     playMove(orig, dest, true);
+
+    if (state.mode === "tree"){
+        if (state.treeMoves.parent){
+            state.treeMoves = state.treeMoves.parent;
+            drawTreeMoves();
+        }else{
+            console.log("Should not have happened");
+        }
+
+        oNamesStack.pop();
+    }
     
     updateState();
 }
@@ -443,9 +474,23 @@ const rankDisplay = (rank) => {
     if (rank === "TODO") return "?";
 
     let v = rank / 100.0;
-    if (v >= 0) return `+${v}`;
-    else return `${v}`;
+    if (v >= 0) v = `+${v}`;
+    else v = `${v}`;
+
+    if (v.length === 2) return `${v}.00`;
+    else if (v.length === 4 && rank < 1000) return `${v}0`;
+    else return v;
 };
+
+const labelPadding = (currentMove) => {
+    if (currentMove % 2 == 0){
+        if (color === "white") return 48;
+        else return 62;
+    }else{
+        if (color === "black") return 48;
+        else return 62;
+    }
+}
 
 let brushes = ["blue", "green", "pink", "red", "grey"];
 
@@ -457,32 +502,53 @@ const drawTreeMoves = () => {
     const circles = [];
     const labels = [];
     
-    console.log(state.treeMoves);
     let i = 0;
+    let labelMargin = {};
+
     state.treeMoves.forEach(treeMove => {
         const move = uciToMove(treeMove.move);
+        const [orig, dest] = move;
 
         const brush = i < brushes.length ? brushes[i] : brushes[brushes.length - 1];
 
         arrows.push({
-            orig: move[0],
-            dest: move[1],
+            orig,
+            dest,
             brush
         });
         circles.push({
-            orig: move[1],
+            orig: dest,
             brush
         });
         labels.push({
-            orig: move[1],
-            customSvg: `<text class="rank" fill="${Colors[brush]}" width="100" height="100" y="${currentMove % 2 == 0 ? 48 : 62}" x="20">${rankDisplay(treeMove.rank)}</text>`
+            orig: dest,
+            customSvg: `<text class="rank" fill="${Colors[brush]}" width="100" height="100" y="${labelPadding(currentMove) + (labelMargin[dest] || 0)}" x="20">${rankDisplay(treeMove.rank)}</text>`
         });
+
+        // Add margin when moves are overlapping
+        if (!labelMargin[dest]){
+            labelMargin[dest] = color === "white" ? 20 : -20;
+        }else{
+            labelMargin[dest] += color === "white" ? 20 : -20;
+        }
         
         i += 1;
     });
 
     cg.setAutoShapes(arrows.concat(circles).concat(labels));
     updateCg();
+    updateState();
+};
+
+const topTreeMoves = (moves) => {
+    const currentMove = game.history().length;
+    let blackTurn = currentMove % 2 == 1;
+
+    moves.sort((a, b) => {
+        if (blackTurn) return a.rank < b.rank ? -1 : 1;
+        else return a.rank < b.rank ? 1 : -1;
+    });
+    return moves.slice(0, state.maxTreeMoves);
 };
 
 const setTreeMode = () => {
@@ -490,11 +556,13 @@ const setTreeMode = () => {
         const { openings, moves } = ops;
 
         state.mode = "tree";
+        state.canPlayBack = false;
+        state.canPlayForward = false;
         hideOverlay();
         rewind();
 
         treeOpenings = openings;
-        state.treeMoves = moves;
+        state.treeMoves = topTreeMoves(moves);
 
         console.log(window.OpeningMoves);
         

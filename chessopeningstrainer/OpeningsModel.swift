@@ -40,7 +40,7 @@ class OpeningsModel: ObservableObject {
         
         do{
             print("Loading openings...")
-            let openingsJson = Bundle.main.path(forResource: "gen/openings-ranked", ofType: "json")!
+            let openingsJson = Bundle.main.path(forResource: "gen/openings", ofType: "json")!
             let jsonData = try String(contentsOfFile: openingsJson).data(using: .utf8)!
             self.openings = try JSONDecoder().decode([Opening].self, from: jsonData)
             print("Loaded openings")
