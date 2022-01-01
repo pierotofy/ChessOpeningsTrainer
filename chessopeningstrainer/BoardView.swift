@@ -102,7 +102,7 @@ struct BoardView: View{
             }.buttonStyle(.borderedProminent)
             .tint(.white)
             .foregroundColor(.black)
-            .padding()
+            .padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
             
             }.background(Image("BoardBackground").resizable(resizingMode: .tile))
             .sheet(isPresented: showDescription, onDismiss: {

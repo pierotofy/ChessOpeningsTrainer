@@ -66,7 +66,7 @@ struct BoardTreeView: View{
                 }
                 
                 }.background(Image("BoardBackground").resizable(resizingMode: .tile))
-        }
+        }.navigationViewStyle(.stack)
     }
 }
 
