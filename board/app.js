@@ -1,3 +1,5 @@
+const { black } = require("color-name");
+
 function main(){
 
 // ==== INIT ====
@@ -36,14 +38,59 @@ const state = {
     mode,
     resetTrainingOnTap: false,
     treeMoves: [],
-    maxTreeMoves: 7,
-    openingName: ""
+    maxTreeMoves: 5,
+    playedOpening: {}
+};
+
+domBoard.onclick = e => {
+    if (state.mode === "tree"){
+        const { left, top, width, height } = e.target.getBoundingClientRect();
+        const x = e.clientX - left;
+        const y = e.clientY - top;
+        
+        const squareSize = width / 8;
+        const idx = Math.floor(x / squareSize);
+        const idy = Math.floor(y / squareSize);
+    
+        let clickedSquare = color === "white" ? game.SQUARES[idy * 8 + idx] : game.SQUARES[(7 - idy) * 8 + (7 - idx)];
+        
+        let selectedOps = [];
+
+        state.treeMoves.forEach(m => {
+            const [ _, dest ] = uciToMove(m.move);
+            if (dest === clickedSquare && m.openings && m.openings.length){
+                let selectedOp = null;
+                const currentMove = game.history().length;
+
+                for (let opIdx of m.openings){
+                    const op = treeOpenings[opIdx];
+                    let numMoves = op.uci.trim().split(" ").length;
+
+                    if (numMoves === currentMove + 1){
+                        selectedOp = op;
+                        break;
+                    }
+                }
+
+                if (selectedOp) {
+                    selectedOps = selectedOps.concat([selectedOp]);
+                }else{
+                    selectedOps = selectedOps.concat(m.openings.map(idx => treeOpenings[idx]));
+                    
+                }
+            }
+        });
+
+        if (selectedOps.length > 0){
+            _sendMessage("showOpenings", JSON.stringify(selectedOps));
+        }
+    }
 };
 
 let treeOpenings = [];
 const pieceStack = [];
 const movesStack = [];
-const oNamesStack = [];
+const poStack = [];
 
 // Webkit
 let _sendMessage = (key, value) => {
@@ -62,9 +109,10 @@ window._handleMessage = (key, value) => {
 };
 
 const broadcastState = () => {
-    const keys = ['canPlayBack', 'canPlayForward', 'mode', 'openingName'];
+    const keys = ['canPlayBack', 'canPlayForward', 'mode', 'playedOpening'];
     for (let k of keys){
-        _sendMessage(`${k}`, `${state[k]}`);
+        if (typeof state[k] === 'object') _sendMessage(`${k}`, `${JSON.stringify(state[k])}`);
+        else _sendMessage(`${k}`, `${state[k]}`);
     }
 }
 
@@ -209,9 +257,9 @@ const checkPlayerMove = (orig, dest) => {
         if (!treeMove) console.log("TODO: END OF TREE!");
         else{
             if (treeMove && treeMove.openings.length > 0){
-                oNamesStack.push(treeOpenings[treeMove.openings[0]].name);
+                poStack.push(treeOpenings[treeMove.openings[0]]);
             }else{
-                oNamesStack.push("");
+                poStack.push({});
             }
 
             state.treeMoves = topTreeMoves(treeMove.moves);
@@ -269,7 +317,6 @@ const checkTakePiece = (move) => {
     if (noCapture) return;
 
     if (enPassant || stdCapture){
-        console.log(move);
         const p = chessMoveToCgPiece(move);
 
         if (stdCapture) p.position = to;
@@ -344,8 +391,8 @@ const updateState = () => {
         state.canPlayBack = movesStack.length > 0;
         state.canPlayForward = false;
     
-        if (oNamesStack.length > 0) state.openingName = oNamesStack[oNamesStack.length - 1];
-        else state.openingName = "";
+        if (poStack.length > 0) state.playedOpening = poStack[poStack.length - 1];
+        else state.playedOpening = {};
     }else{
         state.canPlayBack = movesStack.length > 0;
         state.canPlayForward = movesStack.length < moves.length;
@@ -375,7 +422,7 @@ const playBack = () => {
             console.log("Should not have happened");
         }
 
-        oNamesStack.pop();
+        poStack.pop();
     }
     
     updateState();
@@ -387,8 +434,19 @@ const rewind = () => {
         const [dest, orig] = move;
         playMove(orig, dest, true);
     }
-    updateState();
-    cg.setAutoShapes([]);
+
+    if (state.mode === "tree"){
+        while (state.treeMoves.parent){
+            state.treeMoves = state.treeMoves.parent;   
+        }
+
+        while(poStack.pop());
+        drawTreeMoves();
+    }else{
+        updateState();
+        cg.setAutoShapes([]);
+    }
+
 }
 
 const toggleColor = () => {
@@ -565,8 +623,6 @@ const setTreeMode = () => {
         treeOpenings = openings;
         state.treeMoves = topTreeMoves(moves);
 
-        console.log(window.OpeningMoves);
-        
         drawTreeMoves();
 
         _sendMessage("setMode", state.mode);
