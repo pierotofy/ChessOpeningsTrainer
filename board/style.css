@@ -41,7 +41,7 @@ html,body{
 
 .rank{
     font-weight: bold;
-    font-size: 160%;
+    font-size: 180%;
     font-family: monospace;
     text-shadow: -4px 0 white, 0 4px white, 4px 0 white, 0 -4px white;
 }

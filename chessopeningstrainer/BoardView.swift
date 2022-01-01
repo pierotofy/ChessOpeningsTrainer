@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import WebKit
 
 struct BoardView: View{
     @ObservedObject var webViewModel: WebViewModel

@@ -57,6 +57,9 @@ struct WebViewContainer: UIViewRepresentable {
                         AppSettings.shared.color = value
                     case "setMode":
                         webViewModel.mode = value
+                    case "playedOpening":
+                        webViewModel.playedOpening = Opening.loadfromJSON(value)
+                        
                     default:
                         print("Unknown key \(key)")
                     }
@@ -79,14 +82,18 @@ struct WebViewContainer: UIViewRepresentable {
     }
     
     func makeUIView(context: Context) -> WKWebView {
-        let request = URLRequest(url: webViewModel.url)
-        webView.navigationDelegate = context.coordinator
-        webView.configuration.userContentController.add(JSHandler(webViewModel), name: "jsHandler")
-        webView.load(request)
-        
-        webView.isOpaque = false
-        webView.backgroundColor = .clear
-        webView.scrollView.backgroundColor = .clear
+        if (webView.backgroundColor != .clear){
+            let request = URLRequest(url: webViewModel.url)
+            
+            webView.navigationDelegate = context.coordinator
+            webView.configuration.userContentController.add(JSHandler(webViewModel), name: "jsHandler")
+
+            webView.load(request)
+            
+            webView.isOpaque = false
+            webView.backgroundColor = .clear
+            webView.scrollView.backgroundColor = .clear
+        }
         
         return webView
     }

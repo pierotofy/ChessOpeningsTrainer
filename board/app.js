@@ -581,14 +581,14 @@ const drawTreeMoves = () => {
         });
         labels.push({
             orig: dest,
-            customSvg: `<text class="rank" fill="${Colors[brush]}" width="100" height="100" y="${labelPadding(currentMove) + (labelMargin[dest] || 0)}" x="20">${rankDisplay(treeMove.rank)}</text>`
+            customSvg: `<text class="rank" fill="${Colors[brush]}" width="100" height="100" y="${labelPadding(currentMove) + (labelMargin[dest] || 0)}" x="15">${rankDisplay(treeMove.rank)}</text>`
         });
 
         // Add margin when moves are overlapping
         if (!labelMargin[dest]){
-            labelMargin[dest] = color === "white" ? 20 : -20;
+            labelMargin[dest] = color === "white" ? 24 : -24;
         }else{
-            labelMargin[dest] += color === "white" ? 20 : -20;
+            labelMargin[dest] += color === "white" ? 24 : -24;
         }
         
         i += 1;

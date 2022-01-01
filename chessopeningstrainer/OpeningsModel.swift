@@ -14,6 +14,19 @@ struct Opening: Identifiable, Decodable, Hashable {
         case name, uci, pgn, variations, descr, rank
     }
     
+    public static func loadfromJSON(_ json: String) -> Opening?{
+        if json == "{}" {
+            return nil
+        }
+            
+        do{
+            return try JSONDecoder().decode(Opening.self, from: json.data(using: .utf8)!)
+        }catch{
+            print("Cannot decode opening from JSON \(json)")
+            return nil
+        }
+    }
+    
     var name: String
     var uci: String
     var pgn: String
@@ -40,7 +53,7 @@ class OpeningsModel: ObservableObject {
         
         do{
             print("Loading openings...")
-            let openingsJson = Bundle.main.path(forResource: "gen/openings", ofType: "json")!
+            let openingsJson = Bundle.main.path(forResource: "gen/openings-ranked", ofType: "json")!
             let jsonData = try String(contentsOfFile: openingsJson).data(using: .utf8)!
             self.openings = try JSONDecoder().decode([Opening].self, from: jsonData)
             print("Loaded openings")
