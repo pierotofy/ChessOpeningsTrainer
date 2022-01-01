@@ -36,7 +36,7 @@ const state = {
     mode,
     resetTrainingOnTap: false,
     treeMoves: [],
-    maxTreeMoves: 5,
+    maxTreeMoves: 7,
     openingName: ""
 };
 
@@ -231,9 +231,9 @@ const chessTypeToCgRole = {
 };
 
 const chessMoveToCgPiece = (move) => {
-    const { piece, color } = move;
+    const { captured, color } = move;
     return {
-        role: chessTypeToCgRole[piece], 
+        role: chessTypeToCgRole[captured], 
         color: color === "w" ? "black" : "white"
     };
 }
@@ -269,6 +269,7 @@ const checkTakePiece = (move) => {
     if (noCapture) return;
 
     if (enPassant || stdCapture){
+        console.log(move);
         const p = chessMoveToCgPiece(move);
 
         if (stdCapture) p.position = to;

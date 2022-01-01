@@ -82,7 +82,7 @@ s = Stockfish(parameters={"Threads": 4})
 @lru_cache(maxsize=None)
 def evaluate(fen):
     s.set_fen_position(fen)
-    s.set_depth(6)
+    s.set_depth(20)
     evaluation = s.get_evaluation()
     if evaluation['type'] == 'cp':
         rank = evaluation['value']
