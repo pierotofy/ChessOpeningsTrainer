@@ -26,6 +26,7 @@
 		6DEB28142780D499002514C2 /* BoardTreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB28132780D499002514C2 /* BoardTreeView.swift */; };
 		6DEB28162780D60A002514C2 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB28152780D60A002514C2 /* MainView.swift */; };
 		6DEB281827822108002514C2 /* ShowOpeningsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB281727822108002514C2 /* ShowOpeningsView.swift */; };
+		6DEB281C27826ABF002514C2 /* SOViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB281B27826ABF002514C2 /* SOViewItem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,7 @@
 		6DEB28132780D499002514C2 /* BoardTreeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardTreeView.swift; sourceTree = "<group>"; };
 		6DEB28152780D60A002514C2 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		6DEB281727822108002514C2 /* ShowOpeningsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowOpeningsView.swift; sourceTree = "<group>"; };
+		6DEB281B27826ABF002514C2 /* SOViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOViewItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 		6D66C75A275DAF8700882CC4 = {
 			isa = PBXGroup;
 			children = (
+				6DEB281B27826ABF002514C2 /* SOViewItem.swift */,
 				6DEB281727822108002514C2 /* ShowOpeningsView.swift */,
 				6DEB28152780D60A002514C2 /* MainView.swift */,
 				6DEB28132780D499002514C2 /* BoardTreeView.swift */,
@@ -172,6 +175,7 @@
 				6DEB281827822108002514C2 /* ShowOpeningsView.swift in Sources */,
 				6DEB281227793055002514C2 /* OpeningSelectionItem.swift in Sources */,
 				6D66C79A276301D500882CC4 /* OpeningsModel.swift in Sources */,
+				6DEB281C27826ABF002514C2 /* SOViewItem.swift in Sources */,
 				6D66C7982762FE1C00882CC4 /* BoardView.swift in Sources */,
 				6D66C773275DAF8900882CC4 /* chessopeningstrainer.xcdatamodeld in Sources */,
 				6D66C78D2761A5EA00882CC4 /* WebViewContainer.swift in Sources */,

@@ -92,10 +92,10 @@ struct BoardTreeView: View{
                         DescriptionView(pgn: descrPgn)
                     }
                 }
-                .sheet(isPresented: showOpenings, onDismiss: {
-                }){
+            
+                .sheet(isPresented: showOpenings){
                     VStack{
-                        HStack{
+                        HStack(alignment: .top){
                             Spacer()
                             Button(action: {
                                 webViewModel.showOpenings = nil
@@ -105,8 +105,10 @@ struct BoardTreeView: View{
                             .padding()
                         }
                         ShowOpeningsView(openings: webViewModel.showOpenings!)
-                    }
+                            
+                    }.frame(maxHeight: .infinity, alignment: .top)
                 }
+        
         }.navigationViewStyle(.stack)
     }
 }

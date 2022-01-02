@@ -24,7 +24,7 @@ struct MainView: View{
                 }
             OpeningSelectionView()
                 .tabItem{
-                    Image(systemName: "list.bullet.indent")
+                    Image(systemName: "list.bullet")
                     Text("List")
                 }
         }
