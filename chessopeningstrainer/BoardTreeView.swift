@@ -23,6 +23,7 @@ struct BoardTreeView: View{
     
     var body: some View{
         let showDescription = Binding(get: { descrPgn != "" }, set: { descrPgn = $0 ? descrPgn : "" })
+        let showOpenings = Binding(get: { webViewModel.showOpenings != nil }, set: { webViewModel.showOpenings = $0 ? webViewModel.showOpenings : nil })
         
         NavigationView{
             VStack{
@@ -89,6 +90,21 @@ struct BoardTreeView: View{
                             .padding()
                         }
                         DescriptionView(pgn: descrPgn)
+                    }
+                }
+                .sheet(isPresented: showOpenings, onDismiss: {
+                }){
+                    VStack{
+                        HStack{
+                            Spacer()
+                            Button(action: {
+                                webViewModel.showOpenings = nil
+                            }, label: {
+                                Image(systemName: "xmark.circle.fill")
+                            })
+                            .padding()
+                        }
+                        ShowOpeningsView(openings: webViewModel.showOpenings!)
                     }
                 }
         }.navigationViewStyle(.stack)

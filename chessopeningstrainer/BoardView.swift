@@ -52,57 +52,56 @@ struct BoardView: View{
                 }
             }
             
-            VStack{
-                HStack {
-                    Button(action: webView.rewind){
-                        Image(systemName: "arrow.counterclockwise")
-                        Text("Rewind")
-                            .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
-                        
-                    }.buttonStyle(.borderedProminent)
-                    .disabled(webViewModel.mode != "explore")
-                    .tint(.white)
-                    .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
+            HStack{
+                Button(action: {
+                    if (webViewModel.mode == "explore"){
+                        webView.setTrainingMode();
+                    }else{
+                        webView.setExploreMode();
+                    }
+                }){
+                    Image(systemName: webViewModel.mode == "explore" ? "play.circle" : "stop.circle")
+                    Text(webViewModel.mode == "explore" ? "Start Training" : "Stop Training")
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 36)
+                }.buttonStyle(.borderedProminent)
+                .tint(.white)
+                .foregroundColor(.black)
+                
+                Button(action: webView.rewind){
+                    Image(systemName: "arrow.counterclockwise")
+                    Text("Rewind")
+                        .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
                     
-                    Button(action: {
-                        webView.playBack()
-                    }){
-                        Image(systemName: "chevron.left")
-                        Text("Back")
-                            .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
-                        
-                    }.buttonStyle(.borderedProminent)
-                    .disabled(webViewModel.mode != "explore")
-                    .tint(.white)
-                    .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
+                }.buttonStyle(.borderedProminent)
+                .disabled(webViewModel.mode != "explore")
+                .tint(.white)
+                .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
+                
+                Button(action: {
+                    webView.playBack()
+                }){
+                    Image(systemName: "chevron.left")
+                    Text("Back")
+                        .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
                     
-                    Button(action: {
-                        webView.playForward()
-                    }){
-                        Text("Forward")
-                            .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
-                        Image(systemName: "chevron.right")
-                        
-                    }.buttonStyle(.borderedProminent)
-                    .disabled(webViewModel.mode != "explore")
-                    .tint(.white)
-                    .foregroundColor(webViewModel.canPlayFoward ? .black : .gray)
-                }.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-            }
-            Button(action: {
-                if (webViewModel.mode == "explore"){
-                    webView.setTrainingMode();
-                }else{
-                    webView.setExploreMode();
-                }
-            }){
-                Image(systemName: webViewModel.mode == "explore" ? "play.circle" : "stop.circle")
-                Text(webViewModel.mode == "explore" ? "Start Training" : "Stop Training")
-                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 36)
-            }.buttonStyle(.borderedProminent)
-            .tint(.white)
-            .foregroundColor(.black)
-            .padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
+                }.buttonStyle(.borderedProminent)
+                .disabled(webViewModel.mode != "explore")
+                .tint(.white)
+                .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
+                
+                Button(action: {
+                    webView.playForward()
+                }){
+                    Text("Forward")
+                        .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
+                    Image(systemName: "chevron.right")
+                    
+                }.buttonStyle(.borderedProminent)
+                .disabled(webViewModel.mode != "explore")
+                .tint(.white)
+                .foregroundColor(webViewModel.canPlayFoward ? .black : .gray)
+            }.padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
+
             
             }.background(Image("BoardBackground").resizable(resizingMode: .tile))
             .sheet(isPresented: showDescription, onDismiss: {

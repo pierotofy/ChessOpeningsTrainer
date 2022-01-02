@@ -9,7 +9,7 @@ class WebViewModel: ObservableObject {
     @Published var title: String = ""
     @Published var mode: String = "explore"
     @Published var playedOpening: Opening?
-    
+    @Published var showOpenings: [Opening]?
     var url: URL
     
     init(color: String){

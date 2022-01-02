@@ -14,13 +14,26 @@ struct Opening: Identifiable, Decodable, Hashable {
         case name, uci, pgn, variations, descr, rank
     }
     
-    public static func loadfromJSON(_ json: String) -> Opening?{
+    public static func loadFromJSON(_ json: String) -> Opening?{
         if json == "{}" {
             return nil
         }
             
         do{
             return try JSONDecoder().decode(Opening.self, from: json.data(using: .utf8)!)
+        }catch{
+            print("Cannot decode opening from JSON \(json)")
+            return nil
+        }
+    }
+    
+    public static func loadFromJSONArray(_ json: String) -> [Opening]?{
+        if json == "[]"{
+            return nil
+        }
+        
+        do{
+            return try JSONDecoder().decode([Opening].self, from: json.data(using: .utf8)!)
         }catch{
             print("Cannot decode opening from JSON \(json)")
             return nil
