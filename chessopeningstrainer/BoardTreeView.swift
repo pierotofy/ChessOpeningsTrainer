@@ -11,6 +11,7 @@ import WebKit
 
 struct BoardTreeView: View{
     @ObservedObject var webViewModel: WebViewModel
+    @State public var descrPgn: String = ""
     let webView: WebViewContainer
     
     init(color: String){
@@ -21,6 +22,8 @@ struct BoardTreeView: View{
     }
     
     var body: some View{
+        let showDescription = Binding(get: { descrPgn != "" }, set: { descrPgn = $0 ? descrPgn : "" })
+        
         NavigationView{
             VStack{
                 ZStack {
@@ -34,6 +37,13 @@ struct BoardTreeView: View{
                 .frame(maxHeight: .infinity, alignment: .leading)
                 .toolbar{
                     HStack{
+
+                        Button(action: {
+                            descrPgn = webViewModel.playedOpening!.pgn
+                        }){
+                            Image(systemName: "info.circle")
+                        }.disabled(webViewModel.playedOpening == nil || webViewModel.playedOpening!.descr == nil)
+                                
                         Button(action: webView.toggleColor){
                             Image(systemName: "circle.righthalf.filled")
                         }
@@ -66,6 +76,21 @@ struct BoardTreeView: View{
                 }
                 
                 }.background(Image("BoardBackground").resizable(resizingMode: .tile))
+                .sheet(isPresented: showDescription, onDismiss: {
+                }){
+                    VStack{
+                        HStack{
+                            Spacer()
+                            Button(action: {
+                                descrPgn = ""
+                            }, label: {
+                                Image(systemName: "xmark.circle.fill")
+                            })
+                            .padding()
+                        }
+                        DescriptionView(pgn: descrPgn)
+                    }
+                }
         }.navigationViewStyle(.stack)
     }
 }

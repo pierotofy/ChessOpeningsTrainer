@@ -1,5 +1,3 @@
-const { black } = require("color-name");
-
 function main(){
 
 // ==== INIT ====
@@ -219,7 +217,7 @@ const checkPlayerMove = (orig, dest) => {
     movesStack.push([orig, dest]);
     
     if (state.mode === "training"){
-        const correctMove = moves[movesStack.length];
+        const correctMove = moves[movesStack.length - 1];
         if (playerMove.join("") === correctMove.join("")){
             cg.setAutoShapes([
                 {
