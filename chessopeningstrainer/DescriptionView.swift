@@ -28,7 +28,7 @@ struct DescriptionView: View {
     body{
         padding: 24px;
         font-family: -apple-system-body;
-        font-size: 120%;
+        font-size: \(UIDevice.current.userInterfaceIdiom == .phone ? 38 : 24)px;
     }
     h1,h2,h3,h4,h5{
         font-family: -apple-system-headline;

@@ -16,6 +16,9 @@ struct BoardView: View{
     var opening: Opening
     let webView: WebViewContainer
     
+    private var idiom : UIUserInterfaceIdiom { UIDevice.current.userInterfaceIdiom }
+    
+    
     init(_ opening: Opening, color: String, mode: String){
         self.opening = opening
         
@@ -62,18 +65,24 @@ struct BoardView: View{
                         webView.setExploreMode();
                     }
                 }){
-                    Image(systemName: webViewModel.mode == "explore" ? "play.circle" : "stop.circle")
-                    Text(webViewModel.mode == "explore" ? "Start Training" : "Stop Training")
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 36)
+                    HStack{
+                        Image(systemName: webViewModel.mode == "explore" ? "play.circle" : "stop.circle")
+                        if idiom != .phone{
+                            Text(webViewModel.mode == "explore" ? "Start Training" : "Stop Training")
+                        }
+                    }.frame(maxWidth: .infinity, minHeight: 36)
                 }.buttonStyle(.borderedProminent)
                 .tint(.white)
                 .foregroundColor(.black)
                 
                 Button(action: webView.rewind){
-                    Image(systemName: "arrow.counterclockwise")
-                    Text("Rewind")
-                        .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
-                    
+                    HStack{
+                        Image(systemName: "arrow.counterclockwise")
+                        if idiom != .phone{
+                            Text("Rewind")
+                                
+                        }
+                    }.frame(maxWidth: .infinity, minHeight: 36)
                 }.buttonStyle(.borderedProminent)
                 .disabled(webViewModel.mode != "explore")
                 .tint(.white)
@@ -82,10 +91,12 @@ struct BoardView: View{
                 Button(action: {
                     webView.playBack()
                 }){
-                    Image(systemName: "chevron.left")
-                    Text("Back")
-                        .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
-                    
+                    HStack{
+                        Image(systemName: "chevron.left")
+                        if idiom != .phone{
+                            Text("Back")
+                        }
+                    }.frame(maxWidth: .infinity, minHeight: 36)
                 }.buttonStyle(.borderedProminent)
                 .disabled(webViewModel.mode != "explore")
                 .tint(.white)
@@ -94,9 +105,12 @@ struct BoardView: View{
                 Button(action: {
                     webView.playForward()
                 }){
-                    Text("Forward")
-                        .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
-                    Image(systemName: "chevron.right")
+                    HStack{
+                        if idiom != .phone{
+                            Text("Forward")
+                        }
+                        Image(systemName: "chevron.right")
+                    }.frame(maxWidth: .infinity, minHeight: 36)
                     
                 }.buttonStyle(.borderedProminent)
                 .disabled(webViewModel.mode != "explore")

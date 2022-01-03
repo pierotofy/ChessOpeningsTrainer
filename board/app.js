@@ -114,8 +114,7 @@ const broadcastState = () => {
     }
 }
 
-let resizeTimer = null;
-const updateSize = (resizeAgainSoon) => {
+const updateSize = () => {
     const w = window.innerWidth;
     const h = window.innerHeight;
     const size = Math.min(w, h) + 1;
@@ -130,26 +129,6 @@ const updateSize = (resizeAgainSoon) => {
         domBoard.style.marginLeft = '0px';
         domBoard.style.marginTop = (h - w) / 2 + 'px';
     }
-
-    const newSize = {
-        left: domBoard.style.marginLeft,
-        top: domBoard.style.marginTop
-    };
-
-    if (resizeAgainSoon){
-        if (resizeTimer){
-            clearTimeout(resizeTimer);
-            resizeTimer = null;
-        }
-        resizeTimer = setTimeout(() => {
-            const s = updateSize();
-            if (s.left !== newSize.left || s.right !== newSize.right){
-                updateSize(true);
-            }
-        }, 10);
-    }
-
-    return newSize;
 }
 
 // Chess engine
@@ -648,11 +627,10 @@ const setTreeMode = () => {
     });
 };
 
-
 updateSize();
-window.addEventListener('resize', () => {
-    updateSize(true);
-});
+window.addEventListener('resize', updateSize);
+setInterval(updateSize, 200);
+
 overlay.addEventListener('click', resetTraining);
 
 document.addEventListener('playForward', playForward);

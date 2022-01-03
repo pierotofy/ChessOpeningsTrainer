@@ -17,10 +17,57 @@ struct BoardTreeView: View{
     
     let webView: WebViewContainer
     
+    private var idiom : UIUserInterfaceIdiom { UIDevice.current.userInterfaceIdiom }
+    
+    
     init(color: String){
         let wvm = WebViewModel(color: color)
         self.webViewModel = wvm
         self.webView = WebViewContainer(webViewModel: wvm)
+    }
+    
+    var board: some View{
+        ZStack {
+            webView
+            if webViewModel.isLoading {
+                ProgressView()
+                    .frame(height: 30)
+            }
+        }
+        .navigationBarTitle(Text(webViewModel.playedOpening != nil ? webViewModel.playedOpening!.name : "Waiting for a move..."), displayMode: .inline)
+        .frame(maxHeight: .infinity, alignment: .leading)
+        .toolbar{
+            HStack{
+
+                Button(action: {
+                    descrPgn = webViewModel.playedOpening!.pgn
+                }){
+                    Image(systemName: "info.circle")
+                }.disabled(webViewModel.playedOpening == nil || webViewModel.playedOpening!.descr == nil)
+                        
+                Button(action: webView.toggleColor){
+                    Image(systemName: "circle.righthalf.filled")
+                }
+            }
+        }
+    }
+    
+    var openingsModal : some View{
+        if webViewModel.showOpenings != nil {
+            return AnyView(ShowOpeningsView(openings: webViewModel.showOpenings!, onExploreOpening: { o in
+                exploreOpening = o
+            },
+             onTrainOpening: { o in
+                trainOpening = o
+            },
+             onClose: {
+                withAnimation{
+                    webViewModel.showOpenings = nil
+                }
+            }))
+        }else{
+            return AnyView(EmptyView().hidden())
+        }
     }
     
     var body: some View{
@@ -38,53 +85,26 @@ struct BoardTreeView: View{
             }
             
             VStack{
-                HStack{
-                    ZStack {
-                        webView
-                        if webViewModel.isLoading {
-                            ProgressView()
-                                .frame(height: 30)
-                        }
+                
+                if idiom == .phone{
+                    ZStack{
+                        board
+                        openingsModal.padding(16)
                     }
-                    .navigationBarTitle(Text(webViewModel.playedOpening != nil ? webViewModel.playedOpening!.name : "Waiting for a move..."), displayMode: .inline)
-                    .frame(maxHeight: .infinity, alignment: .leading)
-                    .toolbar{
-                        HStack{
-
-                            Button(action: {
-                                descrPgn = webViewModel.playedOpening!.pgn
-                            }){
-                                Image(systemName: "info.circle")
-                            }.disabled(webViewModel.playedOpening == nil || webViewModel.playedOpening!.descr == nil)
-                                    
-                            Button(action: webView.toggleColor){
-                                Image(systemName: "circle.righthalf.filled")
-                            }
-                        }
-                    }
-                    
-                    if webViewModel.showOpenings != nil {
-                            ShowOpeningsView(openings: webViewModel.showOpenings!, onExploreOpening: { o in
-                                exploreOpening = o
-                            },
-                             onTrainOpening: { o in
-                                trainOpening = o
-                            },
-                             onClose: {
-                                withAnimation{
-                                    webViewModel.showOpenings = nil
-                                }
-                            }).padding(EdgeInsets(top: 16, leading: 2, bottom: 16, trailing: 16))
+                }else{
+                    HStack{
+                        board
+                        openingsModal.padding(EdgeInsets(top: 16, leading: 2, bottom: 16, trailing: 16))
                     }
                 }
                 
                 VStack{
                     HStack {
                         Button(action: webView.rewind){
-                            Image(systemName: "arrow.counterclockwise")
-                            Text("Rewind")
-                                .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
-                            
+                            HStack{
+                                Image(systemName: "arrow.counterclockwise")
+                                Text("Rewind")
+                            }.frame(maxWidth: .infinity, minHeight: 36)
                         }.buttonStyle(.borderedProminent)
                         .tint(.white)
                         .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
@@ -92,10 +112,10 @@ struct BoardTreeView: View{
                         Button(action: {
                             webView.playBack()
                         }){
-                            Image(systemName: "chevron.left")
-                            Text("Back")
-                                .frame(minWidth: 0, maxWidth: .infinity,  minHeight: 36)
-                            
+                            HStack{
+                                Image(systemName: "chevron.left")
+                                Text("Back")
+                            }.frame(maxWidth: .infinity, minHeight: 36)
                         }.buttonStyle(.borderedProminent)
                         .tint(.white)
                         .foregroundColor(webViewModel.canPlayBack ? .black : .gray)

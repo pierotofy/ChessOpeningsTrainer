@@ -44,7 +44,7 @@ struct SOViewItem: View {
             if opening.descr != nil {
                 DescriptionView(pgn: opening.pgn)
             }else{
-                Text("\(opening.pgn) - \(opening.name)")
+                Text("\(opening.name) - \(opening.pgn)")
                     .font(.system(size: 28, weight: .bold))
                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                     .padding(.leading, 32)
