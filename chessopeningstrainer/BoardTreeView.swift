@@ -11,11 +11,12 @@ import WebKit
 
 struct BoardTreeView: View{
     @ObservedObject var webViewModel: WebViewModel
-    @State public var descrPgn: String = ""
+    @State var descrPgn: String = ""
+    @State var exploreOpening: Opening?
+    
     let webView: WebViewContainer
     
     init(color: String){
-        
         let wvm = WebViewModel(color: color)
         self.webViewModel = wvm
         self.webView = WebViewContainer(webViewModel: wvm)
@@ -25,7 +26,12 @@ struct BoardTreeView: View{
         let showDescription = Binding(get: { descrPgn != "" }, set: { descrPgn = $0 ? descrPgn : "" })
         let showOpenings = Binding(get: { webViewModel.showOpenings != nil }, set: { webViewModel.showOpenings = $0 ? webViewModel.showOpenings : nil })
         
+        
         NavigationView{
+            if exploreOpening != nil{
+                NavigationLink(destination: BoardView(exploreOpening!, color: AppSettings.shared.color), isActive: .constant(true)){ EmptyView() }.hidden()
+            }
+            
             VStack{
                 ZStack {
                     webView
@@ -74,6 +80,7 @@ struct BoardTreeView: View{
                         .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
                         
                     }.padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
+                    
                 }
                 
                 }.background(Image("BoardBackground").resizable(resizingMode: .tile))
@@ -104,7 +111,10 @@ struct BoardTreeView: View{
                             })
                             .padding()
                         }
-                        ShowOpeningsView(openings: webViewModel.showOpenings!)
+                        ShowOpeningsView(openings: webViewModel.showOpenings!, onExploreOpening: { o in
+                            exploreOpening = o
+                            webViewModel.showOpenings = nil
+                        })
                             
                     }.frame(maxHeight: .infinity, alignment: .top)
                 }

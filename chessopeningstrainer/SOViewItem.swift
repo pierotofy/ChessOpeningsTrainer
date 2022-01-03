@@ -9,15 +9,26 @@ import SwiftUI
 
 struct SOViewItem: View {
     var opening: Opening
+    var onExploreOpening: ((Opening) -> Void)?
     
     var body: some View{
         HStack{
-            Text(opening.name)
+            Button(action: {
+                if (onExploreOpening != nil){
+                    onExploreOpening!(opening)
+                }
+            }){
+                Image(systemName: "magnifyingglass")
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.green)
+            .padding(.trailing, 10)
+            
             Button(action: {}){
                 
-                Text("HI")
             }.buttonStyle(.borderedProminent)
         }
+    
     }
 }
 

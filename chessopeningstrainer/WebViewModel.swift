@@ -10,20 +10,25 @@ class WebViewModel: ObservableObject {
     @Published var mode: String = "explore"
     @Published var playedOpening: Opening?
     @Published var showOpenings: [Opening]?
-    var url: URL
+    @Published var color: String = "white"
+    @Published var uci: String = ""
+    
     
     init(color: String){
         self.mode = "tree"
-        
-        self.url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "board")!
-            .appending("color", value: color)
-            .appending("mode", value: "tree")
+        self.color = color
     }
     
     init(uci: String, color: String) {
         self.mode = "explore"
-        self.url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "board")!
+        self.uci = uci
+        self.color = color
+    }
+    
+    func getURL() -> URL{
+        return Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "board")!
             .appending("uci", value: uci)
             .appending("color", value: color)
+            .appending("mode", value: mode)
     }
 }

@@ -19,7 +19,8 @@ struct BoardView: View{
     init(_ opening: Opening, color: String){
         self.opening = opening
         
-        let wvm = WebViewModel(uci: opening.uci, color: color)
+        let wvm =  WebViewModel(uci: opening.uci, color: color)
+        
         self.webViewModel = wvm
         self.webView = WebViewContainer(webViewModel: wvm)
     }

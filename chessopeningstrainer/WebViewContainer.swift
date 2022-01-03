@@ -85,7 +85,7 @@ struct WebViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> WKWebView {
         if (webView.backgroundColor != .clear){
-            let request = URLRequest(url: webViewModel.url)
+            let request = URLRequest(url: webViewModel.getURL())
             
             webView.navigationDelegate = context.coordinator
             webView.configuration.userContentController.add(JSHandler(webViewModel), name: "jsHandler")
