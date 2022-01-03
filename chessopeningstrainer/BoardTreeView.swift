@@ -24,12 +24,11 @@ struct BoardTreeView: View{
     
     var body: some View{
         let showDescription = Binding(get: { descrPgn != "" }, set: { descrPgn = $0 ? descrPgn : "" })
-        let showOpenings = Binding(get: { webViewModel.showOpenings != nil }, set: { webViewModel.showOpenings = $0 ? webViewModel.showOpenings : nil })
-        
+        let doExploreOpening = Binding(get: { exploreOpening != nil }, set: { exploreOpening = $0 ? exploreOpening : nil})
         
         NavigationView{
             if exploreOpening != nil{
-                NavigationLink(destination: BoardView(exploreOpening!, color: AppSettings.shared.color), isActive: .constant(true)){ EmptyView() }.hidden()
+                NavigationLink(destination: BoardView(exploreOpening!, color: AppSettings.shared.color), isActive: doExploreOpening){ EmptyView() }.hidden()
             }
             
             VStack{
@@ -38,6 +37,27 @@ struct BoardTreeView: View{
                     if webViewModel.isLoading {
                         ProgressView()
                             .frame(height: 30)
+                    }
+                    
+                    
+                    // TODO!
+                    if webViewModel.showOpenings != nil {
+                        VStack{
+                            HStack(alignment: .top){
+                                Spacer()
+                                Button(action: {
+                                    webViewModel.showOpenings = nil
+                                }, label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                })
+                                .padding()
+                            }
+                            ShowOpeningsView(openings: webViewModel.showOpenings!, onExploreOpening: { o in
+                                webViewModel.showOpenings = nil
+                                exploreOpening = o
+                            })
+                                
+                        }.frame(maxHeight: .infinity, alignment: .top)
                     }
                 }
                 .navigationBarTitle(Text(webViewModel.playedOpening != nil ? webViewModel.playedOpening!.name : "Waiting for a move..."), displayMode: .inline)
@@ -53,6 +73,13 @@ struct BoardTreeView: View{
                                 
                         Button(action: webView.toggleColor){
                             Image(systemName: "circle.righthalf.filled")
+                        }
+                        
+                        // TODO REMOVE
+                        Button(action: {
+                            exploreOpening = Opening(name: "test111", uci: "e2e4", pgn: "1. e4", rank: 200)
+                        }){
+                            Image(systemName: "location")
                         }
                     }
                 }
@@ -98,25 +125,6 @@ struct BoardTreeView: View{
                         }
                         DescriptionView(pgn: descrPgn)
                     }
-                }
-            
-                .sheet(isPresented: showOpenings){
-                    VStack{
-                        HStack(alignment: .top){
-                            Spacer()
-                            Button(action: {
-                                webViewModel.showOpenings = nil
-                            }, label: {
-                                Image(systemName: "xmark.circle.fill")
-                            })
-                            .padding()
-                        }
-                        ShowOpeningsView(openings: webViewModel.showOpenings!, onExploreOpening: { o in
-                            exploreOpening = o
-                            webViewModel.showOpenings = nil
-                        })
-                            
-                    }.frame(maxHeight: .infinity, alignment: .top)
                 }
         
         }.navigationViewStyle(.stack)
