@@ -36,5 +36,9 @@ struct HtmlStringView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) {
         uiView.navigationDelegate = context.coordinator
         uiView.loadHTMLString(htmlContent, baseURL: nil)
+        uiView.isOpaque = false
+        uiView.backgroundColor = .clear
+        uiView.scrollView.backgroundColor = .clear
+        
     }
 }

@@ -16,13 +16,14 @@ struct BoardView: View{
     var opening: Opening
     let webView: WebViewContainer
     
-    init(_ opening: Opening, color: String){
+    init(_ opening: Opening, color: String, mode: String){
         self.opening = opening
         
-        let wvm =  WebViewModel(uci: opening.uci, color: color)
+        let wvm =  WebViewModel(uci: opening.uci, color: color, mode: mode)
         
         self.webViewModel = wvm
         self.webView = WebViewContainer(webViewModel: wvm)
+        
     }
     
     var body: some View{
@@ -125,6 +126,6 @@ struct BoardView: View{
 
 struct BoardView_Previews: PreviewProvider{
     static var previews: some View{
-        BoardView(Opening(name: "test", uci: "e2e4", pgn: "", rank: 50), color: "white")
+        BoardView(Opening(name: "test", uci: "e2e4", pgn: "", rank: 50), color: "white", mode: "explore")
     }
 }

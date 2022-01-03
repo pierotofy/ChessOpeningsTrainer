@@ -17,23 +17,46 @@ struct OpsList : Identifiable{
 struct ShowOpeningsView: View {
     var openings: [Opening]
     var onExploreOpening: ((Opening) -> Void)?
+    var onTrainOpening: ((Opening) -> Void)?
+    var onClose: (() -> Void)?
 
     func opsList() -> [OpsList]{
         return openings.map { OpsList( opening: $0, items: [OpsList(opening: $0)] )}
     }
     
     var body: some View{
-        if (openings.count == 1){
-            SOViewItem(opening: openings[0], onExploreOpening: onExploreOpening)
-        }else{
-            List(opsList(), children: \.items){ ol in
-                if ol.items != nil{
-                    Text(ol.opening.name)
-                }else{
-                    SOViewItem(opening: ol.opening, onExploreOpening: onExploreOpening)
+        VStack{
+            HStack(alignment: .top){
+                Spacer()
+                Button(action: {
+                    if onClose != nil{
+                        onClose!()
+                    }
+                }, label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .frame(width: 28, height: 28)
+                })
+                .padding()
+            }
+            
+            if (openings.count == 1){
+                SOViewItem(opening: openings[0], onExploreOpening: onExploreOpening, onTrainOpening: onTrainOpening)
+            }else{
+                List(opsList(), children: \.items){ ol in
+                    if ol.items != nil{
+                        Text(ol.opening.name)
+                    }else{
+                        SOViewItem(opening: ol.opening, onExploreOpening: onExploreOpening, onTrainOpening: onTrainOpening).padding()
+                    }
                 }
             }
+        }.frame(maxHeight: .infinity, alignment: .top)
+         .background(){
+            RoundedRectangle(cornerRadius: 16).fill(.white)
         }
+            
+
     }
 }
 

@@ -44,7 +44,7 @@ struct OpeningSelectionView: View{
                     }){
                         Image(systemName: "magnifyingglass")
                     }.background(NavigationLink(
-                        destination: BoardView(o, color: AppSettings.shared.color),
+                        destination: BoardView(o, color: AppSettings.shared.color, mode: "explore"),
                         tag: o,
                         selection: $opening,
                         label: { EmptyView() }

@@ -60,8 +60,9 @@ struct WebViewContainer: UIViewRepresentable {
                     case "playedOpening":
                         webViewModel.playedOpening = Opening.loadFromJSON(value)
                     case "showOpenings":
-                        webViewModel.showOpenings = Opening.loadFromJSONArray(value)
-                        
+                        withAnimation{
+                            webViewModel.showOpenings = Opening.loadFromJSONArray(value)
+                        }
                     default:
                         print("Unknown key \(key)")
                     }

@@ -13,6 +13,7 @@ struct BoardTreeView: View{
     @ObservedObject var webViewModel: WebViewModel
     @State var descrPgn: String = ""
     @State var exploreOpening: Opening?
+    @State var trainOpening: Opening?
     
     let webView: WebViewContainer
     
@@ -25,39 +26,39 @@ struct BoardTreeView: View{
     var body: some View{
         let showDescription = Binding(get: { descrPgn != "" }, set: { descrPgn = $0 ? descrPgn : "" })
         let doExploreOpening = Binding(get: { exploreOpening != nil }, set: { exploreOpening = $0 ? exploreOpening : nil})
+        let doTrainOpening = Binding(get: { trainOpening != nil }, set: { trainOpening = $0 ? trainOpening : nil})
+        
         
         NavigationView{
             if exploreOpening != nil{
-                NavigationLink(destination: BoardView(exploreOpening!, color: AppSettings.shared.color), isActive: doExploreOpening){ EmptyView() }.hidden()
+                NavigationLink(destination: BoardView(exploreOpening!, color: AppSettings.shared.color, mode: "explore"), isActive: doExploreOpening){ EmptyView() }.hidden()
+            }
+            if trainOpening != nil{
+                NavigationLink(destination: BoardView(trainOpening!, color: AppSettings.shared.color, mode: "training"), isActive: doTrainOpening){ EmptyView() }.hidden()
             }
             
             VStack{
                 ZStack {
                     webView
+                        .onTapGesture {
+                            webViewModel.showOpenings = nil
+                        }
                     if webViewModel.isLoading {
                         ProgressView()
                             .frame(height: 30)
                     }
                     
-                    
-                    // TODO!
                     if webViewModel.showOpenings != nil {
-                        VStack{
-                            HStack(alignment: .top){
-                                Spacer()
-                                Button(action: {
-                                    webViewModel.showOpenings = nil
-                                }, label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                })
-                                .padding()
-                            }
                             ShowOpeningsView(openings: webViewModel.showOpenings!, onExploreOpening: { o in
-                                webViewModel.showOpenings = nil
                                 exploreOpening = o
-                            })
-                                
-                        }.frame(maxHeight: .infinity, alignment: .top)
+                            },
+                             onTrainOpening: { o in
+                                trainOpening = o
+                            },
+                             onClose: {
+                                webViewModel.showOpenings = nil
+                            }).padding(EdgeInsets(top: 64, leading: 16, bottom: 64, trailing: 16))
+
                     }
                 }
                 .navigationBarTitle(Text(webViewModel.playedOpening != nil ? webViewModel.playedOpening!.name : "Waiting for a move..."), displayMode: .inline)
@@ -73,13 +74,6 @@ struct BoardTreeView: View{
                                 
                         Button(action: webView.toggleColor){
                             Image(systemName: "circle.righthalf.filled")
-                        }
-                        
-                        // TODO REMOVE
-                        Button(action: {
-                            exploreOpening = Opening(name: "test111", uci: "e2e4", pgn: "1. e4", rank: 200)
-                        }){
-                            Image(systemName: "location")
                         }
                     }
                 }

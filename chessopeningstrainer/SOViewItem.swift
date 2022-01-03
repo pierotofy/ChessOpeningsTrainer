@@ -10,23 +10,45 @@ import SwiftUI
 struct SOViewItem: View {
     var opening: Opening
     var onExploreOpening: ((Opening) -> Void)?
+    var onTrainOpening: ((Opening) -> Void)?
     
     var body: some View{
-        HStack{
-            Button(action: {
-                if (onExploreOpening != nil){
-                    onExploreOpening!(opening)
+        VStack{
+            HStack{
+                Button(action: {
+                    if (onExploreOpening != nil){
+                        onExploreOpening!(opening)
+                    }
+                }){
+                    Text("Explore").frame(minHeight: 36)
+                    Image(systemName: "magnifyingglass")
                 }
-            }){
-                Image(systemName: "magnifyingglass")
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.green)
-            .padding(.trailing, 10)
-            
-            Button(action: {}){
+                .buttonStyle(.borderedProminent)
+                .tint(.green)
+                .padding(.trailing, 8)
                 
-            }.buttonStyle(.borderedProminent)
+                Button(action: {
+                    if (onTrainOpening != nil){
+                        onTrainOpening!(opening)
+                    }
+                }){
+                    Text("Train").frame(minHeight: 36)
+                    Image(systemName: "play.circle")
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+                .padding(.trailing, 16)
+                
+            }.frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+            
+            if opening.descr != nil {
+                DescriptionView(pgn: opening.pgn)
+            }else{
+                Text("\(opening.pgn) - \(opening.name)")
+                    .font(.system(size: 28, weight: .bold))
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading, 32)
+            }
         }
     
     }

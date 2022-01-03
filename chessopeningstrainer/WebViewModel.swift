@@ -25,6 +25,12 @@ class WebViewModel: ObservableObject {
         self.color = color
     }
     
+    init(uci: String, color: String, mode: String){
+        self.mode = mode
+        self.uci = uci
+        self.color = color
+    }
+    
     func getURL() -> URL{
         return Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "board")!
             .appending("uci", value: uci)
