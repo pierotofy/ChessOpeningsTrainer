@@ -38,14 +38,29 @@ struct BoardTreeView: View{
             }
             
             VStack{
-                ZStack {
-                    webView
-                        .onTapGesture {
-                            webViewModel.showOpenings = nil
+                HStack{
+                    ZStack {
+                        webView
+                        if webViewModel.isLoading {
+                            ProgressView()
+                                .frame(height: 30)
                         }
-                    if webViewModel.isLoading {
-                        ProgressView()
-                            .frame(height: 30)
+                    }
+                    .navigationBarTitle(Text(webViewModel.playedOpening != nil ? webViewModel.playedOpening!.name : "Waiting for a move..."), displayMode: .inline)
+                    .frame(maxHeight: .infinity, alignment: .leading)
+                    .toolbar{
+                        HStack{
+
+                            Button(action: {
+                                descrPgn = webViewModel.playedOpening!.pgn
+                            }){
+                                Image(systemName: "info.circle")
+                            }.disabled(webViewModel.playedOpening == nil || webViewModel.playedOpening!.descr == nil)
+                                    
+                            Button(action: webView.toggleColor){
+                                Image(systemName: "circle.righthalf.filled")
+                            }
+                        }
                     }
                     
                     if webViewModel.showOpenings != nil {
@@ -56,25 +71,10 @@ struct BoardTreeView: View{
                                 trainOpening = o
                             },
                              onClose: {
-                                webViewModel.showOpenings = nil
-                            }).padding(EdgeInsets(top: 64, leading: 16, bottom: 64, trailing: 16))
-
-                    }
-                }
-                .navigationBarTitle(Text(webViewModel.playedOpening != nil ? webViewModel.playedOpening!.name : "Waiting for a move..."), displayMode: .inline)
-                .frame(maxHeight: .infinity, alignment: .leading)
-                .toolbar{
-                    HStack{
-
-                        Button(action: {
-                            descrPgn = webViewModel.playedOpening!.pgn
-                        }){
-                            Image(systemName: "info.circle")
-                        }.disabled(webViewModel.playedOpening == nil || webViewModel.playedOpening!.descr == nil)
-                                
-                        Button(action: webView.toggleColor){
-                            Image(systemName: "circle.righthalf.filled")
-                        }
+                                withAnimation{
+                                    webViewModel.showOpenings = nil
+                                }
+                            }).padding(EdgeInsets(top: 16, leading: 2, bottom: 16, trailing: 16))
                     }
                 }
                 
@@ -104,7 +104,7 @@ struct BoardTreeView: View{
                     
                 }
                 
-                }.background(Image("BoardBackground").resizable(resizingMode: .tile))
+            }.background(Image("BoardBackground").resizable(resizingMode: .tile))
                 .sheet(isPresented: showDescription, onDismiss: {
                 }){
                     VStack{
