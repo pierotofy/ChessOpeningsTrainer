@@ -375,7 +375,7 @@ const cg = Chessground(domBoard, {
 
 // Setup colors
 const Colors = {
-    green: '#00b708',
+    green: '#009d07',
     pink: '#b700af',
     blue: '#0057E9',
     yellow: '#cb7200',
@@ -513,9 +513,9 @@ const checkTrainingFinished = () => {
         // _sendMessage("trainingFinished");
 
         confetti({
-            particleCount: 200,
+            particleCount: 100,
             spread: 60,
-            ticks: 150,
+            ticks: 100,
             origin: { y: 0.7 }
         });
     }
