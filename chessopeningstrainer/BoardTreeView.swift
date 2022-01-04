@@ -106,8 +106,8 @@ struct BoardTreeView: View{
                                 Text("Rewind")
                             }.frame(maxWidth: .infinity, minHeight: 36)
                         }.buttonStyle(.borderedProminent)
-                        .tint(.white)
-                        .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
+                        .tint(Color.background)
+                        .foregroundColor(webViewModel.canPlayBack ? .primary : .gray)
                         
                         Button(action: {
                             webView.playBack()
@@ -117,8 +117,8 @@ struct BoardTreeView: View{
                                 Text("Back")
                             }.frame(maxWidth: .infinity, minHeight: 36)
                         }.buttonStyle(.borderedProminent)
-                        .tint(.white)
-                        .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
+                            .tint(Color.background)
+                        .foregroundColor(webViewModel.canPlayBack ? .primary : .gray)
                         
                     }.padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
                     

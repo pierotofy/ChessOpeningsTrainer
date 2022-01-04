@@ -72,8 +72,8 @@ struct BoardView: View{
                         }
                     }.frame(maxWidth: .infinity, minHeight: 36)
                 }.buttonStyle(.borderedProminent)
-                .tint(.white)
-                .foregroundColor(.black)
+                .tint(Color.background)
+                .foregroundColor(Color.primary)
                 
                 Button(action: webView.rewind){
                     HStack{
@@ -85,8 +85,8 @@ struct BoardView: View{
                     }.frame(maxWidth: .infinity, minHeight: 36)
                 }.buttonStyle(.borderedProminent)
                 .disabled(webViewModel.mode != "explore")
-                .tint(.white)
-                .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
+                .tint(.background)
+                .foregroundColor(webViewModel.canPlayBack ? .primary : .gray)
                 
                 Button(action: {
                     webView.playBack()
@@ -99,8 +99,8 @@ struct BoardView: View{
                     }.frame(maxWidth: .infinity, minHeight: 36)
                 }.buttonStyle(.borderedProminent)
                 .disabled(webViewModel.mode != "explore")
-                .tint(.white)
-                .foregroundColor(webViewModel.canPlayBack ? .black : .gray)
+                .tint(.background)
+                .foregroundColor(webViewModel.canPlayBack ? .primary : .gray)
                 
                 Button(action: {
                     webView.playForward()
@@ -114,8 +114,8 @@ struct BoardView: View{
                     
                 }.buttonStyle(.borderedProminent)
                 .disabled(webViewModel.mode != "explore")
-                .tint(.white)
-                .foregroundColor(webViewModel.canPlayFoward ? .black : .gray)
+                .tint(.background)
+                .foregroundColor(webViewModel.canPlayFoward ? .primary : .gray)
             }.padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
 
             

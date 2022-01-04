@@ -53,7 +53,7 @@ struct ShowOpeningsView: View {
             }
         }.frame(maxHeight: .infinity, alignment: .top)
          .background(){
-            RoundedRectangle(cornerRadius: 16).fill(.white)
+             RoundedRectangle(cornerRadius: 16).fill(Color.background)
         }
             
 

@@ -40,17 +40,20 @@ const state = {
     playedOpening: {}
 };
 
-domBoard.onclick = e => {
+window.onclick = e => {
     if (state.mode === "tree"){
-        const { left, top, width, height } = e.target.getBoundingClientRect();
+        const { left, top, width, height } = domBoard.getBoundingClientRect();
         const x = e.clientX - left;
         const y = e.clientY - top;
         
         const squareSize = width / 8;
         const idx = Math.floor(x / squareSize);
         const idy = Math.floor(y / squareSize);
+
+        _sendMessage("TEST", `${x} ${y} ${width} ${idx} ${idy}`);
     
         let clickedSquare = color === "white" ? game.SQUARES[idy * 8 + idx] : game.SQUARES[(7 - idy) * 8 + (7 - idx)];
+        if (!clickedSquare) return;
         
         let selectedOps = [];
 
@@ -114,9 +117,15 @@ const broadcastState = () => {
     }
 }
 
+let lastSize = {
+    w: null,
+    h: null
+};
 const updateSize = () => {
     const w = window.innerWidth;
     const h = window.innerHeight;
+    if (lastSize.w === w && lastSize.h === h) return;
+
     const size = Math.min(w, h) + 1;
 
     domBoard.style.width = size + 'px';
@@ -129,6 +138,9 @@ const updateSize = () => {
         domBoard.style.marginLeft = '0px';
         domBoard.style.marginTop = (h - w) / 2 + 'px';
     }
+
+    lastSize.w = w;
+    lastSize.h = h;
 }
 
 // Chess engine
