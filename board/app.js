@@ -40,54 +40,6 @@ const state = {
     playedOpening: {}
 };
 
-window.onclick = e => {
-    if (state.mode === "tree"){
-        const { left, top, width, height } = domBoard.getBoundingClientRect();
-        const x = e.clientX - left;
-        const y = e.clientY - top;
-        
-        const squareSize = width / 8;
-        const idx = Math.floor(x / squareSize);
-        const idy = Math.floor(y / squareSize);
-
-        _sendMessage("TEST", `${x} ${y} ${width} ${idx} ${idy}`);
-    
-        let clickedSquare = color === "white" ? game.SQUARES[idy * 8 + idx] : game.SQUARES[(7 - idy) * 8 + (7 - idx)];
-        if (!clickedSquare) return;
-        
-        let selectedOps = [];
-
-        state.treeMoves.forEach(m => {
-            const [ _, dest ] = uciToMove(m.move);
-            if (dest === clickedSquare && m.openings && m.openings.length){
-                let selectedOp = null;
-                const currentMove = game.history().length;
-
-                for (let opIdx of m.openings){
-                    const op = treeOpenings[opIdx];
-                    let numMoves = op.uci.trim().split(" ").length;
-
-                    if (numMoves === currentMove + 1){
-                        selectedOp = op;
-                        break;
-                    }
-                }
-
-                if (selectedOp) {
-                    selectedOps = selectedOps.concat([selectedOp]);
-                }else{
-                    selectedOps = selectedOps.concat(m.openings.map(idx => treeOpenings[idx]));
-                    
-                }
-            }
-        });
-
-        if (selectedOps.length > 0){
-            _sendMessage("showOpenings", JSON.stringify(selectedOps));
-        }
-    }
-};
-
 let treeOpenings = [];
 const pieceStack = [];
 const movesStack = [];
@@ -221,7 +173,53 @@ const updateCg = () => {
     });
 }
 
+const handleBoardClick = (e) => {
+    if (state.mode === "tree"){
+        const { left, top, width, height } = domBoard.getBoundingClientRect();
+        const x = e.clientX - left;
+        const y = e.clientY - top;
+        
+        const squareSize = width / 8;
+        const idx = Math.floor(x / squareSize);
+        const idy = Math.floor(y / squareSize);
+
+        let clickedSquare = color === "white" ? game.SQUARES[idy * 8 + idx] : game.SQUARES[(7 - idy) * 8 + (7 - idx)];
+        if (!clickedSquare) return;
+        
+        let selectedOps = [];
+
+        state.treeMoves.forEach(m => {
+            const [ _, dest ] = uciToMove(m.move);
+            if (dest === clickedSquare && m.openings && m.openings.length){
+                let selectedOp = null;
+                const currentMove = game.history().length;
+
+                for (let opIdx of m.openings){
+                    const op = treeOpenings[opIdx];
+                    let numMoves = op.uci.trim().split(" ").length;
+
+                    if (numMoves === currentMove + 1){
+                        selectedOp = op;
+                        break;
+                    }
+                }
+
+                if (selectedOp) {
+                    selectedOps = selectedOps.concat([selectedOp]);
+                }else{
+                    selectedOps = selectedOps.concat(m.openings.map(idx => treeOpenings[idx]));
+                    
+                }
+            }
+        });
+
+        _sendMessage("showOpenings", JSON.stringify(selectedOps));
+    }
+};
+
 const checkPlayerMove = (orig, dest) => {
+    touchMoved = true;
+
     const playerMove = uciToMove(`${orig}${dest}`);
     
     pieceStack.push(checkTakePiece(game.move({from: orig, to: dest})));
@@ -512,7 +510,14 @@ const checkTrainingFinished = () => {
     if (movesStack.length === moves.length){
         state.resetTrainingOnTap = true;
         stopMoves();
-        _sendMessage("trainingFinished");
+        // _sendMessage("trainingFinished");
+
+        confetti({
+            particleCount: 200,
+            spread: 60,
+            ticks: 150,
+            origin: { y: 0.7 }
+        });
     }
 }
 
@@ -639,6 +644,28 @@ const setTreeMode = () => {
     });
 };
 
+let touchMoved = false;
+
+if (('ontouchstart' in window) ||
+       (navigator.maxTouchPoints > 0) ||
+       (navigator.msMaxTouchPoints > 0)){
+    window.addEventListener('touchstart', e => {
+        setTimeout(() => {
+            if (e.touches && !touchMoved){
+                handleBoardClick({
+                    clientX: e.touches[0].clientX,
+                    clientY: e.touches[0].clientY
+                });
+            }
+
+            touchMoved = false;
+        }, 0);
+    });
+}else{
+    window.addEventListener('click', handleBoardClick);
+}
+
+
 updateSize();
 window.addEventListener('resize', updateSize);
 setInterval(updateSize, 200);
@@ -652,6 +679,7 @@ document.addEventListener('toggleColor', toggleColor);
 document.addEventListener('setTrainingMode', setTrainingMode);
 document.addEventListener('setExploreMode', setExploreMode);
 document.addEventListener('setTreeMode', setTreeMode);
+
 
 // Debug
 if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||

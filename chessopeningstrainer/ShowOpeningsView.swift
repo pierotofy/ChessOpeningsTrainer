@@ -34,26 +34,24 @@ struct ShowOpeningsView: View {
                     }
                 }, label: {
                     Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .frame(width: 28, height: 28)
                 })
                 .padding()
             }
             
             if (openings.count == 1){
-                SOViewItem(opening: openings[0], onExploreOpening: onExploreOpening, onTrainOpening: onTrainOpening)
+                SOViewItem(opening: openings[0], onExploreOpening: onExploreOpening, onTrainOpening: onTrainOpening, multiple: false)
             }else{
                 List(opsList(), children: \.items){ ol in
                     if ol.items != nil{
                         Text(ol.opening.name)
                     }else{
-                        SOViewItem(opening: ol.opening, onExploreOpening: onExploreOpening, onTrainOpening: onTrainOpening).padding()
+                        SOViewItem(opening: ol.opening, onExploreOpening: onExploreOpening, onTrainOpening: onTrainOpening, multiple: true).padding()
                     }
                 }
             }
         }.frame(maxHeight: .infinity, alignment: .top)
          .background(){
-             RoundedRectangle(cornerRadius: 16).fill(Color.background)
+             RoundedRectangle(cornerRadius: 8).fill(Color.background)
         }
             
 

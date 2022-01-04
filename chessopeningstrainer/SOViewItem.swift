@@ -11,6 +11,7 @@ struct SOViewItem: View {
     var opening: Opening
     var onExploreOpening: ((Opening) -> Void)?
     var onTrainOpening: ((Opening) -> Void)?
+    var multiple: Bool
     
     var body: some View{
         VStack{
@@ -37,17 +38,24 @@ struct SOViewItem: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.blue)
-                .padding(.trailing, 16)
                 
-            }.frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+            }.frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, !multiple ? 32 : 0)
             
             if opening.descr != nil {
                 DescriptionView(pgn: opening.pgn)
             }else{
-                Text("\(opening.name) - \(opening.pgn)")
-                    .font(.system(size: 28, weight: .bold))
+                if !multiple {
+                    Text(opening.name)
+                        .font(.headline)
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, !multiple ? 32 : 0)
+                }
+                Text(opening.pgn)
+                    .font(.subheadline)
                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 32)
+                    .padding(.leading, !multiple ? 32 : 0)
+                    
             }
         }
     
@@ -56,6 +64,6 @@ struct SOViewItem: View {
 
 struct SOViewItem_Previews: PreviewProvider{
     static var previews: some View{
-        SOViewItem(opening: Opening(name: "test", uci: "e2e4", pgn: "1. e4", rank: 20))
+        SOViewItem(opening: Opening(name: "test", uci: "e2e4", pgn: "1. e4", rank: 20), multiple: false)
     }
 }

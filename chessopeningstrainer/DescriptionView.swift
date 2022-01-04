@@ -24,14 +24,25 @@ struct DescriptionView: View {
     var pgn: String
     
     var css: String = """
+    <header><meta name="viewport" content='width=device-width, initial-scale=1.0, minimum-scale=1.0'></header>
+    
     <style type="text/css">
-    body{
-        padding: 24px;
-        font-family: -apple-system-body;
-        font-size: 38px;
+    :root {
+      color-scheme: light dark;
     }
-    h1,h2,h3,h4,h5{
+    body{
+        -webkit-text-size-adjust: none;
+        padding: 20px;
+        font-family: -apple-system-body;
+        font-size: 20px;
+    }
+    h1,h2 {
+        font-size: 24px;
         font-family: -apple-system-headline;
+    }
+    h3,h4,h5{
+        font-size: 22px;
+        font-family: -apple-system-subheadline;
     }
     </style>
     """
