@@ -36,7 +36,7 @@ const state = {
     mode,
     resetTrainingOnTap: false,
     treeMoves: [],
-    maxTreeMoves: 5,
+    maxTreeMoves: 20,
     playedOpening: {}
 };
 
@@ -190,10 +190,10 @@ const handleBoardClick = (e) => {
 
         state.treeMoves.forEach(m => {
             const [ _, dest ] = uciToMove(m.move);
-            if (dest === clickedSquare && m.openings && m.openings.length){
+            if (dest === clickedSquare && m.openings){
                 let selectedOp = null;
                 const currentMove = game.history().length;
-
+                
                 for (let opIdx of m.openings){
                     const op = treeOpenings[opIdx];
                     let numMoves = op.uci.trim().split(" ").length;
@@ -209,6 +209,15 @@ const handleBoardClick = (e) => {
                 }else{
                     selectedOps = selectedOps.concat(m.openings.map(idx => treeOpenings[idx]));
                     
+                    // Try searching down the tree, as this might be an intermediate
+                    // move of an opening sequence
+                    if (selectedOps.length === 0){
+                        console.log(m);
+                        let tm = m;
+                        while(tm && !tm.openings.length) tm = tm.moves[0];
+                        if (tm.openings.length > 0) selectedOps = selectedOps.concat(tm.openings.map(idx => treeOpenings[idx]));
+                        else selectedOps = []; // No openings (strange?)
+                    }
                 }
             }
         });
@@ -262,16 +271,26 @@ const checkPlayerMove = (orig, dest) => {
         const treeMove = state.treeMoves.find(tm => tm.move === `${orig}${dest}`);
         const prevTree = state.treeMoves;
 
-        if (!treeMove) console.log("TODO: END OF TREE!");
+        if (!treeMove) confettiToss();
         else{
-            if (treeMove && treeMove.openings.length > 0){
-                poStack.push(treeOpenings[treeMove.openings[0]]);
+            if (treeMove){
+                if (treeMove.openings.length > 0){
+                    poStack.push(treeOpenings[treeMove.openings[0]]);
+                }else if (treeMove.moves.length > 0){
+                    // Search down the move, this might be an intermediate move
+                    // of an opening sequence
+                    let tm = treeMove;
+                    while(tm && !tm.openings.length) tm = tm.moves[0];
+                    if (tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
+                    else poStack.push({});
+                }
             }else{
                 poStack.push({});
             }
 
             state.treeMoves = topTreeMoves(treeMove.moves);
             state.treeMoves.parent = prevTree;
+            if (state.treeMoves.length === 0) confettiToss(); // Done!
             drawTreeMoves();
         }
     }
@@ -505,6 +524,14 @@ const stopMoves = () => {
     showOverlay();
 }
 
+const confettiToss = () => {
+    confetti({
+        particleCount: 100,
+        spread: 60,
+        ticks: 100,
+        origin: { y: 0.7 }
+    });
+}
 
 const checkTrainingFinished = () => {
     if (movesStack.length === moves.length){
@@ -512,12 +539,7 @@ const checkTrainingFinished = () => {
         stopMoves();
         // _sendMessage("trainingFinished");
 
-        confetti({
-            particleCount: 100,
-            spread: 60,
-            ticks: 100,
-            origin: { y: 0.7 }
-        });
+        confettiToss();
     }
 }
 
