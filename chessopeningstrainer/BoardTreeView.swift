@@ -38,7 +38,12 @@ struct BoardTreeView: View{
         .frame(maxHeight: .infinity, alignment: .leading)
         .toolbar{
             HStack{
-
+                Button(action: {
+                    trainOpening = webViewModel.playedOpening
+                }){
+                    Image(systemName: "play.circle")
+                }.disabled(webViewModel.playedOpening == nil)
+                
                 Button(action: {
                     descrPgn = webViewModel.playedOpening!.pgn
                 }){
