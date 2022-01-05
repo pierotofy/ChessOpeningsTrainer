@@ -7,11 +7,12 @@ function parseQueryParams(){
     return JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
 }
 
-let { uci, color, mode } = parseQueryParams();
+let { uci, color, mode, maxTreeMoves } = parseQueryParams();
 if (mode !== "tree" && !uci) throw new Error("UCI is required");
 if (!uci) uci = "";
 if (!color) color = "white";
 if (!mode) mode = "explore";
+if (!maxTreeMoves) maxTreeMoves = 5;
 
 const loadOpeningsTree = (done) => {
     const onLoad = () => {
@@ -36,7 +37,7 @@ const state = {
     mode,
     resetTrainingOnTap: false,
     treeMoves: [],
-    maxTreeMoves: 20,
+    maxTreeMoves,
     playedOpening: {}
 };
 
@@ -397,9 +398,10 @@ const Colors = {
     green: '#009d07',
     pink: '#b700af',
     blue: '#0057E9',
-    yellow: '#cb7200',
+    orange: '#ff8d00',
     grey: '#4a4a4a',
-    red: '#b70000'
+    red: '#b70000',
+    white: "#898989"
 };
 let cgBrushes = {};
 for (let k in Colors){
@@ -588,7 +590,7 @@ const labelPadding = (currentMove) => {
     }
 }
 
-let brushes = ["blue", "green", "pink", "red", "grey"];
+let brushes = ["blue", "green", "pink", "red", "orange", "white", "grey"];
 
 const drawTreeMoves = () => {
     const currentMove = game.history().length;
