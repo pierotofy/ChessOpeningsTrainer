@@ -11,7 +11,7 @@ import SwiftUI
 struct MainView: View{
     var body: some View{
         TabView{
-            BoardTreeView(color: AppSettings.shared.color)
+            BoardTreeView(color: AppSettings.shared.color, maxTreeMoves: AppSettings.shared.maxTreeMoves)
                 .tabItem{
                     Image(systemName: "checkerboard.rectangle")
                     Text("Board")

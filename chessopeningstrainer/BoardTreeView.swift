@@ -12,6 +12,8 @@ import WebKit
 struct BoardTreeView: View{
     @ObservedObject var webViewModel: WebViewModel
     @State var descrPgn: String = ""
+    @State var showSettings: Bool = false
+    @State var sMaxTreeMoves: Float = Float(AppSettings.shared.maxTreeMoves)
     @State var exploreOpening: Opening?
     @State var trainOpening: Opening?
     
@@ -20,8 +22,8 @@ struct BoardTreeView: View{
     private var idiom : UIUserInterfaceIdiom { UIDevice.current.userInterfaceIdiom }
     
     
-    init(color: String){
-        let wvm = WebViewModel(color: color)
+    init(color: String, maxTreeMoves: Int){
+        let wvm = WebViewModel(color: color, maxTreeMoves: maxTreeMoves)
         self.webViewModel = wvm
         self.webView = WebViewContainer(webViewModel: wvm)
     }
@@ -52,6 +54,11 @@ struct BoardTreeView: View{
                         
                 Button(action: webView.toggleColor){
                     Image(systemName: "circle.righthalf.filled")
+                }
+                Button(action: {
+                    showSettings = true
+                }){
+                    Image(systemName: "gearshape")
                 }
             }
         }
@@ -145,6 +152,32 @@ struct BoardTreeView: View{
                         DescriptionView(pgn: descrPgn)
                     }
                 }
+                .sheet(isPresented: $showSettings, onDismiss: {
+                    AppSettings.shared.maxTreeMoves = Int(sMaxTreeMoves)
+                    webView.setMaxTreeMoves(maxTreeMoves: Int(sMaxTreeMoves))
+                }){
+                    VStack{
+                        HStack{
+                            Text("Settings").font(.largeTitle).frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                            Spacer()
+                            Button(action: {
+                                showSettings = false
+                            }, label: {
+                                Image(systemName: "xmark.circle.fill")
+                            })
+                            .padding()
+                        }
+                        
+                        HStack{
+                            Text("Max Openings: ").fontWeight(.bold)
+                            Text(String(Int(sMaxTreeMoves))).padding(.trailing, 16)
+                            Slider(value: $sMaxTreeMoves,
+                                   in: 1...20,
+                                   step: 1)
+                        }
+                    }.padding(16)
+                        .frame(minHeight: 0, maxHeight: .infinity, alignment: .top)
+                }
         
         }.navigationViewStyle(.stack)
     }
@@ -152,6 +185,6 @@ struct BoardTreeView: View{
 
 struct BoardTreeView_Previews: PreviewProvider{
     static var previews: some View{
-        BoardTreeView(color: "white")
+        BoardTreeView(color: "white", maxTreeMoves: 5)
     }
 }

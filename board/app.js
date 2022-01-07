@@ -60,6 +60,12 @@ if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandl
 
 window._handleMessage = (key, value) => {
     if (key === "dispatchEvent") document.dispatchEvent(new Event(value));
+    else if (key === "setMaxTreeMoves"){
+        if (mode === "tree"){
+            state.maxTreeMoves = parseInt(value);
+            setTreeMode();
+        }
+    }
 };
 
 const broadcastState = () => {

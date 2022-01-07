@@ -13,10 +13,12 @@ class WebViewModel: ObservableObject {
     @Published var color: String = "white"
     @Published var uci: String = ""
     
+    var maxTreeMoves: Int = 0
     
-    init(color: String){
+    init(color: String, maxTreeMoves: Int){
         self.mode = "tree"
         self.color = color
+        self.maxTreeMoves = maxTreeMoves
     }
     
     init(uci: String, color: String) {
@@ -32,9 +34,15 @@ class WebViewModel: ObservableObject {
     }
     
     func getURL() -> URL{
-        return Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "board")!
+        var url =  Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "board")!
             .appending("uci", value: uci)
             .appending("color", value: color)
             .appending("mode", value: mode)
+        
+        if mode == "tree"{
+            url = url.appending("maxTreeMoves", value: String(maxTreeMoves))
+        }
+        
+        return url
     }
 }

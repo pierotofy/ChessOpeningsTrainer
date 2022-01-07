@@ -132,4 +132,8 @@ struct WebViewContainer: UIViewRepresentable {
     func setExploreMode(){
         dispatchEvent("setExploreMode")
     }
+    
+    func setMaxTreeMoves(maxTreeMoves: Int){
+        sendMessage("setMaxTreeMoves", value: String(maxTreeMoves))
+    }
 }

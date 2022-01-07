@@ -72,13 +72,6 @@ struct OpeningSelectionView: View{
             
             .navigationTitle("Openings")
             .searchable(text: $searchText)
-//            .toolbar{
-//                Button(action: {
-//
-//                }){
-//                    Image(systemName: "gearshape")
-//                }
-//            }
             
         }.navigationViewStyle(.stack)
         .sheet(isPresented: showDescription, onDismiss: {
