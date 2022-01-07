@@ -15,11 +15,23 @@ struct OpeningSelectionView: View{
     
     private var opModel = OpeningsModel()
     
+    func searchOpenings(_ ops: [Opening], depth: Int) -> [Opening]{
+        var result: [Opening] = ops.filter { $0.name.contains(searchText) }
+        
+        if depth < 2{
+            ops.forEach{ op in
+                if let v = op.variations{
+                    result = result + searchOpenings(v, depth: depth + 1)
+                }
+            }
+        }
+        
+        return result
+    }
+    
     private var openings: [Opening] {
         if !searchText.isEmpty {
-            return opModel.openings.filter { $0.name.contains(searchText)
-                
-            }
+            return searchOpenings(opModel.openings, depth: 0)
         } else {
             return opModel.openings
         }
