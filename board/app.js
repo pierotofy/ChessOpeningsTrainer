@@ -39,7 +39,8 @@ const state = {
     showingShapes: false,
     treeMoves: [],
     maxTreeMoves,
-    playedOpening: {}
+    playedOpening: {},
+    autoMoving: false
 };
 
 let treeOpenings = [];
@@ -181,7 +182,7 @@ const updateCg = () => {
 }
 
 const handleBoardClick = (e) => {
-    if (state.mode === "tree" && state.showingShapes){
+    if (state.showingShapes){
         const { left, top, width } = domBoard.getBoundingClientRect();
         const x = e.clientX - left;
         const y = e.clientY - top;
@@ -228,6 +229,10 @@ const handleBoardClick = (e) => {
                 }
             }
         });
+
+        if (state.mode === "treetrain" && selectedOps.length === 0){
+            setTreeTrainMode(); // Reset
+        }
 
         _sendMessage("showOpenings", JSON.stringify(selectedOps));
     }
@@ -297,8 +302,7 @@ const checkPlayerMove = (orig, dest) => {
             drawTreeMoves();
         }
     }else if (state.mode === "treetrain"){
-        console.log(orig, dest);
-        const ranks = state.treeMoves.map(tm => { return { move: tm.move, rank: tm.rank} });
+        let ranks = state.treeMoves.map(tm => { return { move: tm.move, rank: tm.rank} });
         const currentMove = game.history().length;
         let blackTurn = currentMove % 2 == 0;
 
@@ -312,7 +316,7 @@ const checkPlayerMove = (orig, dest) => {
         if (treeMove){
             // How does the move rank?
             // Best / Excellent / Good
-            const rankId = ranks.map(r => r.move).indexOf(treeMove.move);
+            let rankId = ranks.map(r => r.move).indexOf(treeMove.move);
             
             if (rankId === 0) console.log("Best!");
             else if (rankId >= 2) console.log("Excellent!");
@@ -329,16 +333,31 @@ const checkPlayerMove = (orig, dest) => {
                 else poStack.push({});
             }
 
-            console.log(poStack[poStack.length - 1]);
-
             state.treeMoves = topTreeMoves(treeMove.moves);
             state.treeMoves.parent = prevTree;
 
-            // TODO: Computer moves
-            // Draw arrows on fail / start over logic
+            if (state.treeMoves.length === 0){
+                confettiToss();
+                showOverlay();
+                state.resetTrainingOnTap = true;
+            }else if (!state.autoMoving && ((!blackTurn && color === "white") || (blackTurn && color === "black"))){
+                // Find computer move
 
+                // ranks = state.treeMoves.map(tm => { return { move: tm.move, rank: tm.rank} });
+                // blackTurn = !blackTurn;
+                // ranks.sort((a, b) => {
+                //     if (blackTurn) return a.rank < b.rank ? -1 : 1;
+                //     else return a.rank < b.rank ? 1 : -1;
+                // });
+
+                const moveId = Math.floor(Math.random() * state.treeMoves.length);
+                const move = uciToMove(state.treeMoves[moveId].move);
+                playMove(move[0], move[1]);
+                checkPlayerMove(move[0], move[1]);
+            }
         }else{
-            console.log("NOT FOUND!");
+            drawTreeMoves();
+            showOverlay();
         }
 
         updateState();
@@ -518,7 +537,11 @@ const rewind = () => {
         }
 
         while(poStack.pop());
-        drawTreeMoves();
+        if (state.mode === "tree") drawTreeMoves();
+        else{
+            cg.setAutoShapes([]);
+            state.showingShapes = false;
+        }
     }else{
         updateState();
         cg.setAutoShapes([]);
@@ -540,21 +563,26 @@ const toggleColor = () => {
 }
 
 const resetTraining = (force) => {
-    if (state.mode !== "training") return;
     if (state.resetTrainingOnTap || (typeof force === "boolean" && force)){
-        state.resetTrainingOnTap = false;
-        hideOverlay();
-        rewind();
+        if (state.mode === "training" || state.mode === "treetrain"){
+            state.resetTrainingOnTap = false;
+            hideOverlay();
+            rewind();
 
-        cg.set({
-            highlight: {
-                lastMove: false
+            cg.set({
+                highlight: {
+                    lastMove: false
+                }
+            });
+        }
+
+        if (state.mode === "training"){
+            if (color === 'black'){
+                playForward(); // White plays first move
+                checkTrainingFinished();
             }
-        });
-        
-        if (color === 'black'){
-            playForward(); // White plays first move
-            checkTrainingFinished();
+        }else{
+            setTreeTrainMode();
         }
     }
 }
@@ -587,8 +615,6 @@ const checkTrainingFinished = () => {
     if (movesStack.length === moves.length){
         state.resetTrainingOnTap = true;
         stopMoves();
-        // _sendMessage("trainingFinished");
-
         confettiToss();
     }
 }
@@ -730,6 +756,17 @@ const setTreeTrainMode = () => {
 
         treeOpenings = openings;
         state.treeMoves = topTreeMoves(moves);
+
+        // Play first moves?
+        if (uci){
+            state.autoMoving = true;
+            const moves = uci.split(" ").map(uciToMove);
+            moves.forEach(m => {
+                playMove(m[0], m[1]);
+                checkPlayerMove(m[0], m[1]);
+            });
+            state.autoMoving = false;
+        }
 
         _sendMessage("setMode", state.mode);
     });
