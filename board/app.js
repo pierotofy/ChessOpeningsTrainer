@@ -8,7 +8,7 @@ function parseQueryParams(){
 }
 
 let { uci, color, mode, maxTreeMoves } = parseQueryParams();
-if (mode !== "tree" && !uci) throw new Error("UCI is required");
+if ((mode !== "tree" && mode !== "treetrain") && !uci) throw new Error("UCI is required");
 if (!uci) uci = "";
 if (!color) color = "white";
 if (!mode) mode = "explore";
@@ -36,6 +36,7 @@ const state = {
     canPlayForward: true,
     mode,
     resetTrainingOnTap: false,
+    showingShapes: false,
     treeMoves: [],
     maxTreeMoves,
     playedOpening: {}
@@ -110,7 +111,7 @@ const calcDests = () => {
 
     const dests = new Map();
     
-    if (state.mode === "training"){
+    if (state.mode === "training" || state.mode == "treetrain"){
         // All legal moves allowed
         game.SQUARES.forEach(s => {
           const ms = game.moves({square: s, verbose: true});
@@ -118,7 +119,6 @@ const calcDests = () => {
         });
     }else if (state.mode === "tree"){
         // Only opening moves allowed
-        // const currentMove = game.history().length;
         const validMoves = {};
 
         state.treeMoves.forEach(treeMove => {
@@ -181,8 +181,8 @@ const updateCg = () => {
 }
 
 const handleBoardClick = (e) => {
-    if (state.mode === "tree"){
-        const { left, top, width, height } = domBoard.getBoundingClientRect();
+    if (state.mode === "tree" && state.showingShapes){
+        const { left, top, width } = domBoard.getBoundingClientRect();
         const x = e.clientX - left;
         const y = e.clientY - top;
         
@@ -280,26 +280,68 @@ const checkPlayerMove = (orig, dest) => {
 
         if (!treeMove) confettiToss();
         else{
-            if (treeMove){
-                if (treeMove.openings.length > 0){
-                    poStack.push(treeOpenings[treeMove.openings[0]]);
-                }else if (treeMove.moves.length > 0){
-                    // Search down the move, this might be an intermediate move
-                    // of an opening sequence
-                    let tm = treeMove;
-                    while(tm && !tm.openings.length) tm = tm.moves[0];
-                    if (tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
-                    else poStack.push({});
-                }
-            }else{
-                poStack.push({});
+            if (treeMove.openings.length > 0){
+                poStack.push(treeOpenings[treeMove.openings[0]]);
+            }else if (treeMove.moves.length > 0){
+                // Search down the move, this might be an intermediate move
+                // of an opening sequence
+                let tm = treeMove;
+                while(tm && !tm.openings.length) tm = tm.moves[0];
+                if (tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
+                else poStack.push({});
             }
-
+            
             state.treeMoves = topTreeMoves(treeMove.moves);
             state.treeMoves.parent = prevTree;
             if (state.treeMoves.length === 0) confettiToss(); // Done!
             drawTreeMoves();
         }
+    }else if (state.mode === "treetrain"){
+        console.log(orig, dest);
+        const ranks = state.treeMoves.map(tm => { return { move: tm.move, rank: tm.rank} });
+        const currentMove = game.history().length;
+        let blackTurn = currentMove % 2 == 0;
+
+        ranks.sort((a, b) => {
+            if (blackTurn) return a.rank < b.rank ? -1 : 1;
+            else return a.rank < b.rank ? 1 : -1;
+        });
+
+        const prevTree = state.treeMoves;
+        const treeMove = state.treeMoves.find(tm => tm.move === `${orig}${dest}`);
+        if (treeMove){
+            // How does the move rank?
+            // Best / Excellent / Good
+            const rankId = ranks.map(r => r.move).indexOf(treeMove.move);
+            
+            if (rankId === 0) console.log("Best!");
+            else if (rankId >= 2) console.log("Excellent!");
+            else if (rankId > 2) console.log("Good!");
+
+            if (treeMove.openings.length > 0){
+                poStack.push(treeOpenings[treeMove.openings[0]]);
+            }else if (treeMove.moves.length > 0){
+                // Search down the move, this might be an intermediate move
+                // of an opening sequence
+                let tm = treeMove;
+                while(tm && !tm.openings.length) tm = tm.moves[0];
+                if (tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
+                else poStack.push({});
+            }
+
+            console.log(poStack[poStack.length - 1]);
+
+            state.treeMoves = topTreeMoves(treeMove.moves);
+            state.treeMoves.parent = prevTree;
+
+            // TODO: Computer moves
+            // Draw arrows on fail / start over logic
+
+        }else{
+            console.log("NOT FOUND!");
+        }
+
+        updateState();
     }
 };
 
@@ -422,7 +464,7 @@ const getMoves = (uci) => {
 const moves = getMoves(uci);
 
 const updateState = () => {
-    if (state.mode === "tree"){
+    if (state.mode === "tree" || state.mode === "treetrain"){
         state.canPlayBack = movesStack.length > 0;
         state.canPlayForward = false;
     
@@ -449,10 +491,10 @@ const playBack = () => {
     const [dest, orig] = movesStack.pop();
     playMove(orig, dest, true);
 
-    if (state.mode === "tree"){
+    if (state.mode === "tree" || state.mode === "treetrain"){
         if (state.treeMoves.parent){
             state.treeMoves = state.treeMoves.parent;
-            drawTreeMoves();
+            if (state.mode === "tree") drawTreeMoves();
         }else{
             console.log("Should not have happened");
         }
@@ -470,7 +512,7 @@ const rewind = () => {
         playMove(orig, dest, true);
     }
 
-    if (state.mode === "tree"){
+    if (state.mode === "tree" || state.mode === "treetrain"){
         while (state.treeMoves.parent){
             state.treeMoves = state.treeMoves.parent;   
         }
@@ -639,7 +681,9 @@ const drawTreeMoves = () => {
         i += 1;
     });
 
-    cg.setAutoShapes(arrows.concat(circles).concat(labels));
+    const shapes = arrows.concat(circles).concat(labels);
+    state.showingShapes = shapes.length > 0;
+    cg.setAutoShapes(shapes);
     updateCg();
     updateState();
 };
@@ -669,6 +713,23 @@ const setTreeMode = () => {
         state.treeMoves = topTreeMoves(moves);
 
         drawTreeMoves();
+
+        _sendMessage("setMode", state.mode);
+    });
+};
+
+const setTreeTrainMode = () => {
+    loadOpeningsTree((ops) => {
+        const { openings, moves } = ops;
+
+        state.mode = "treetrain";
+        state.canPlayBack = false;
+        state.canPlayForward = false;
+        hideOverlay();
+        rewind();
+
+        treeOpenings = openings;
+        state.treeMoves = topTreeMoves(moves);
 
         _sendMessage("setMode", state.mode);
     });
@@ -709,7 +770,7 @@ document.addEventListener('toggleColor', toggleColor);
 document.addEventListener('setTrainingMode', setTrainingMode);
 document.addEventListener('setExploreMode', setExploreMode);
 document.addEventListener('setTreeMode', setTreeMode);
-
+document.addEventListener('setTreeTrainMode', setTreeTrainMode);
 
 // Debug
 if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||
@@ -730,6 +791,8 @@ if (state.mode === "explore"){
     setTrainingMode();
 }else if (state.mode === "tree"){
     setTreeMode();
+}else if (state.mode === "treetrain"){
+    setTreeTrainMode();
 }
 
 }
