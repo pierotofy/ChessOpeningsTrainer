@@ -11,10 +11,15 @@ import SwiftUI
 struct MainView: View{
     var body: some View{
         TabView{
-            BoardTreeView(color: AppSettings.shared.color, maxTreeMoves: AppSettings.shared.maxTreeMoves)
+            BoardTreeView(color: AppSettings.shared.color, maxTreeMoves: AppSettings.shared.maxTreeMoves, mode: "tree")
+                .tabItem{
+                    Image(systemName: "book.fill")
+                    Text("Explore")
+                }
+            BoardTreeView(color: AppSettings.shared.color, maxTreeMoves: AppSettings.shared.maxTreeMoves, mode: "treetrain")
                 .tabItem{
                     Image(systemName: "checkerboard.rectangle")
-                    Text("Board")
+                    Text("Practice")
                 }
             OpeningSelectionView()
                 .tabItem{

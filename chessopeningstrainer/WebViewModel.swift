@@ -15,11 +15,12 @@ class WebViewModel: ObservableObject {
     
     var maxTreeMoves: Int = 0
     
-    init(color: String, maxTreeMoves: Int){
-        self.mode = "tree"
+    init(color: String, maxTreeMoves: Int, mode: String){
         self.color = color
         self.maxTreeMoves = maxTreeMoves
+        self.mode = mode
     }
+    
     
     init(uci: String, color: String) {
         self.mode = "explore"
@@ -39,7 +40,7 @@ class WebViewModel: ObservableObject {
             .appending("color", value: color)
             .appending("mode", value: mode)
         
-        if mode == "tree"{
+        if mode == "tree" || mode == "treetrain" {
             url = url.appending("maxTreeMoves", value: String(maxTreeMoves))
         }
         

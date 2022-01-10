@@ -39,8 +39,7 @@ const state = {
     showingShapes: false,
     treeMoves: [],
     maxTreeMoves,
-    playedOpening: {},
-    autoMoving: false
+    playedOpening: {}
 };
 
 let treeOpenings = [];
@@ -133,15 +132,7 @@ const calcDests = () => {
 
     return dests;
 }
-const noDests = () => {
-    const dests = new Map();
 
-    game.SQUARES.forEach(s => {
-      dests.set(s, []);
-    });
-
-    return dests;
-}
 
 const uciToMove = (uci) => {
     let result = ["", ""];
@@ -238,15 +229,15 @@ const handleBoardClick = (e) => {
     }
 };
 
-const checkPlayerMove = (orig, dest) => {
-    touchMoved = true;
+const currentTurn = () => {
+    return game.history().length % 2 === 1 ? "black" : "white";
+}
+const nextTurn = () => {
+    return game.history().length % 2 === 0 ? "black" : "white";
+}
 
+const afterPlayerMove = (orig, dest, autoMove) => {
     const playerMove = uciToMove(`${orig}${dest}`);
-    
-    pieceStack.push(checkTakePiece(game.move({from: orig, to: dest})));
-    updateCg();
-    movesStack.push([orig, dest]);
-    
     if (state.mode === "training"){
         const correctMove = moves[movesStack.length - 1];
         if (playerMove.join("") === correctMove.join("")){
@@ -276,14 +267,13 @@ const checkPlayerMove = (orig, dest) => {
             ]);
     
             state.resetTrainingOnTap = true;
-            stopMoves();
         }
     }else if (state.mode === "tree"){
         // Update tree variations
         const treeMove = state.treeMoves.find(tm => tm.move === `${orig}${dest}`);
         const prevTree = state.treeMoves;
 
-        if (!treeMove) confettiToss();
+        if (!treeMove) confettiToss(true);
         else{
             if (treeMove.openings.length > 0){
                 poStack.push(treeOpenings[treeMove.openings[0]]);
@@ -296,32 +286,28 @@ const checkPlayerMove = (orig, dest) => {
                 else poStack.push({});
             }
             
-            state.treeMoves = topTreeMoves(treeMove.moves);
+            state.treeMoves = topTreeMoves(treeMove.moves, currentTurn());
             state.treeMoves.parent = prevTree;
-            if (state.treeMoves.length === 0) confettiToss(); // Done!
+            if (state.treeMoves.length === 0) confettiToss(true); // Done!
             drawTreeMoves();
         }
     }else if (state.mode === "treetrain"){
-        let ranks = state.treeMoves.map(tm => { return { move: tm.move, rank: tm.rank} });
-        const currentMove = game.history().length;
-        let blackTurn = currentMove % 2 == 0;
-
-        ranks.sort((a, b) => {
-            if (blackTurn) return a.rank < b.rank ? -1 : 1;
-            else return a.rank < b.rank ? 1 : -1;
-        });
-
         const prevTree = state.treeMoves;
         const treeMove = state.treeMoves.find(tm => tm.move === `${orig}${dest}`);
+        
         if (treeMove){
             // How does the move rank?
             // Best / Excellent / Good
+            let ranks = state.treeMoves.map(tm => { return { move: tm.move, rank: tm.rank} });
+            let blackTurn = currentTurn() === "black";
+    
+            ranks.sort((a, b) => {
+                if (blackTurn) return a.rank < b.rank ? 1 : -1;
+                else return a.rank < b.rank ? -1 : 1;
+            });
+
             let rankId = ranks.map(r => r.move).indexOf(treeMove.move);
             
-            if (rankId === 0) console.log("Best!");
-            else if (rankId >= 2) console.log("Excellent!");
-            else if (rankId > 2) console.log("Good!");
-
             if (treeMove.openings.length > 0){
                 poStack.push(treeOpenings[treeMove.openings[0]]);
             }else if (treeMove.moves.length > 0){
@@ -333,35 +319,58 @@ const checkPlayerMove = (orig, dest) => {
                 else poStack.push({});
             }
 
-            state.treeMoves = topTreeMoves(treeMove.moves);
+            state.treeMoves = topTreeMoves(treeMove.moves, currentTurn() );
             state.treeMoves.parent = prevTree;
 
             if (state.treeMoves.length === 0){
-                confettiToss();
-                showOverlay();
-                state.resetTrainingOnTap = true;
-            }else if (!state.autoMoving && ((!blackTurn && color === "white") || (blackTurn && color === "black"))){
-                // Find computer move
-
-                // ranks = state.treeMoves.map(tm => { return { move: tm.move, rank: tm.rank} });
-                // blackTurn = !blackTurn;
-                // ranks.sort((a, b) => {
-                //     if (blackTurn) return a.rank < b.rank ? -1 : 1;
-                //     else return a.rank < b.rank ? 1 : -1;
-                // });
-
-                const moveId = Math.floor(Math.random() * state.treeMoves.length);
-                const move = uciToMove(state.treeMoves[moveId].move);
-                playMove(move[0], move[1]);
-                checkPlayerMove(move[0], move[1]);
+                confettiToss(true);
+            }else{
+                if (!autoMove){
+                    if (rankId === 0) flash("Best");
+                    else if (rankId >= 1) flash("Excellent");
+                    else if (rankId > 2) flash("Good");
+                }
             }
-        }else{
+
+            if (state.treeMoves.length > 0 && !autoMove && currentTurn() !== color){
+                // Find computer move
+                playTrainComputerMove();
+            }
+        }else if (!autoMove){
             drawTreeMoves();
-            showOverlay();
         }
 
         updateState();
     }
+};
+
+const playTrainComputerMove = () => {
+    let isBlack = color === "black";
+    ranks = state.treeMoves.map(tm => { return { move: tm.move, rank: tm.rank} });
+    ranks.sort((a, b) => {
+        if (isBlack) return a.rank < b.rank ? 1 : -1;
+        else return a.rank < b.rank ? -1 : 1;
+    });
+
+    ranks = ranks.filter(r => isBlack ? r.rank < 0 : r.rank > 0.8);
+    
+    let moveId;
+    if (ranks.length > 0) moveId = state.treeMoves.map(tm => tm.move).indexOf(ranks[Math.floor(Math.random() * Math.min(ranks.length, 1))].move);
+    else moveId = Math.floor(Math.random() * state.treeMoves.length);
+
+    const move = uciToMove(state.treeMoves[moveId].move);
+    playMove(move[0], move[1]);
+    afterPlayerMove(move[0], move[1], true);
+}
+
+const checkPlayerMove = (orig, dest) => {
+    touchMoved = true;
+
+    pieceStack.push(checkTakePiece(game.move({from: orig, to: dest})));
+    updateCg();
+    movesStack.push([orig, dest]);
+
+    afterPlayerMove(orig, dest);
 };
 
 const chessTypeToCgRole = {
@@ -506,14 +515,23 @@ const playForward = () => {
 
 const playBack = () => {
     if (movesStack.length <= 0) return;
+    if (movesStack.length <= 1 && color === "black") return;
 
     const [dest, orig] = movesStack.pop();
     playMove(orig, dest, true);
 
-    if (state.mode === "tree" || state.mode === "treetrain"){
+    if (state.mode === "tree"){
         if (state.treeMoves.parent){
             state.treeMoves = state.treeMoves.parent;
-            if (state.mode === "tree") drawTreeMoves();
+            drawTreeMoves();
+        }else{
+            console.log("Should not have happened");
+        }
+
+        poStack.pop();
+    }else if (state.mode === "treetrain"){
+        if (state.treeMoves.parent){
+            state.treeMoves = state.treeMoves.parent;
         }else{
             console.log("Should not have happened");
         }
@@ -547,6 +565,11 @@ const rewind = () => {
         cg.setAutoShapes([]);
     }
 
+    cg.set({
+        highlight: {
+            lastMove: false
+        }
+    });
 }
 
 const toggleColor = () => {
@@ -567,21 +590,16 @@ const resetTraining = (force) => {
         if (state.mode === "training" || state.mode === "treetrain"){
             state.resetTrainingOnTap = false;
             hideOverlay();
-            rewind();
-
-            cg.set({
-                highlight: {
-                    lastMove: false
-                }
-            });
         }
 
         if (state.mode === "training"){
+            rewind();
+
             if (color === 'black'){
                 playForward(); // White plays first move
                 checkTrainingFinished();
             }
-        }else{
+        }else if (state.mode === "treetrain"){
             setTreeTrainMode();
         }
     }
@@ -593,29 +611,23 @@ const showOverlay = () => {
 const hideOverlay = () => {
     overlay.style.pointerEvents = "none";
 }
-const stopMoves = () => {
-    cg.set({
-        movable: {
-            dests: noDests()
-        }
-    });
-    showOverlay();
-}
 
-const confettiToss = () => {
+const confettiToss = (withOverlay) => {
     confetti({
         particleCount: 100,
         spread: 60,
         ticks: 100,
         origin: { y: 0.7 }
     });
+    if (withOverlay){
+        showOverlay();
+        state.resetTrainingOnTap = true;
+    }
 }
 
 const checkTrainingFinished = () => {
     if (movesStack.length === moves.length){
-        state.resetTrainingOnTap = true;
-        stopMoves();
-        confettiToss();
+        confettiToss(true);
     }
 }
 
@@ -653,6 +665,16 @@ const rankDisplay = (rank) => {
     else if (v.length === 4 && rank < 1000) return `${v}0`;
     else return v;
 };
+
+const flash = (text) => {
+    const el = document.createElement("div");
+    el.classList.add("flash");
+    el.innerHTML = `<div class="text">${text}</div>`;
+    document.body.append(el);
+    setTimeout(() => {
+        el.remove();
+    }, 2000);
+}
 
 const labelPadding = (currentMove) => {
     if (currentMove % 2 == 0){
@@ -714,58 +736,60 @@ const drawTreeMoves = () => {
     updateState();
 };
 
-const topTreeMoves = (moves) => {
-    const currentMove = game.history().length;
-    let blackTurn = currentMove % 2 == 1;
-
+const topTreeMoves = (moves, forColor) => {
     moves.sort((a, b) => {
-        if (blackTurn) return a.rank < b.rank ? -1 : 1;
+        if (forColor === "black") return a.rank < b.rank ? -1 : 1;
         else return a.rank < b.rank ? 1 : -1;
     });
+
     return moves.slice(0, state.maxTreeMoves);
 };
 
 const setTreeMode = () => {
     loadOpeningsTree((ops) => {
         const { openings, moves } = ops;
-
+        treeOpenings = openings;
+        state.treeMoves = topTreeMoves(moves, "white");
+        
         state.mode = "tree";
         state.canPlayBack = false;
         state.canPlayForward = false;
         hideOverlay();
         rewind();
 
-        treeOpenings = openings;
-        state.treeMoves = topTreeMoves(moves);
-
-        drawTreeMoves();
 
         _sendMessage("setMode", state.mode);
     });
+};
+
+const playTreeTrainInitMoves = () => {
+    if (uci){
+        const moves = uci.split(" ").map(uciToMove);
+        moves.forEach(m => {
+            playMove(m[0], m[1]);
+            afterPlayerMove(m[0], m[1], true);
+        });
+    }
 };
 
 const setTreeTrainMode = () => {
     loadOpeningsTree((ops) => {
         const { openings, moves } = ops;
 
+        rewind();
+        treeOpenings = openings;
+        state.treeMoves = topTreeMoves(moves, "white");
+        
         state.mode = "treetrain";
         state.canPlayBack = false;
         state.canPlayForward = false;
         hideOverlay();
-        rewind();
-
-        treeOpenings = openings;
-        state.treeMoves = topTreeMoves(moves);
-
-        // Play first moves?
-        if (uci){
-            state.autoMoving = true;
-            const moves = uci.split(" ").map(uciToMove);
-            moves.forEach(m => {
-                playMove(m[0], m[1]);
-                checkPlayerMove(m[0], m[1]);
-            });
-            state.autoMoving = false;
+        
+        playTreeTrainInitMoves();
+        if ((uci && ((color === "black" && uci.split(" ").length % 2 == 0) || 
+            color === "white" && uci.split(" ").length % 2 == 1)) ||
+            color === "black"){
+                playTrainComputerMove();
         }
 
         _sendMessage("setMode", state.mode);

@@ -22,8 +22,8 @@ struct BoardTreeView: View{
     private var idiom : UIUserInterfaceIdiom { UIDevice.current.userInterfaceIdiom }
     
     
-    init(color: String, maxTreeMoves: Int){
-        let wvm = WebViewModel(color: color, maxTreeMoves: maxTreeMoves)
+    init(color: String, maxTreeMoves: Int, mode: String){
+        let wvm = WebViewModel(color: color, maxTreeMoves: maxTreeMoves, mode: mode)
         self.webViewModel = wvm
         self.webView = WebViewContainer(webViewModel: wvm)
     }
@@ -185,6 +185,6 @@ struct BoardTreeView: View{
 
 struct BoardTreeView_Previews: PreviewProvider{
     static var previews: some View{
-        BoardTreeView(color: "white", maxTreeMoves: 5)
+        BoardTreeView(color: "white", maxTreeMoves: 5, mode: "tree")
     }
 }
