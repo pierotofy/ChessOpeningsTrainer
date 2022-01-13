@@ -35,7 +35,7 @@ const state = {
     canPlayBack: false,
     canPlayForward: true,
     mode,
-    resetTrainingOnTap: false,
+    resetBoardOnTap: false,
     showingShapes: false,
     treeMoves: [],
     maxTreeMoves,
@@ -266,7 +266,7 @@ const afterPlayerMove = (orig, dest, autoMove) => {
                 }
             ]);
     
-            state.resetTrainingOnTap = true;
+            state.resetBoardOnTap = true;
         }
     }else if (state.mode === "tree"){
         // Update tree variations
@@ -345,17 +345,30 @@ const afterPlayerMove = (orig, dest, autoMove) => {
 };
 
 const playTrainComputerMove = () => {
-    let isBlack = color === "black";
-    ranks = state.treeMoves.map(tm => { return { move: tm.move, rank: tm.rank} });
+    let computerIsWhite = color === "black";
+    ranks = state.treeMoves.map(tm => { return { openings: tm.openings, move: tm.move, rank: tm.rank, bestRank: computerIsWhite ? -Infinity : Infinity} });
+
     ranks.sort((a, b) => {
-        if (isBlack) return a.rank < b.rank ? 1 : -1;
+        if (computerIsWhite) return a.rank < b.rank ? 1 : -1;
         else return a.rank < b.rank ? -1 : 1;
     });
 
-    ranks = ranks.filter(r => isBlack ? r.rank < 0 : r.rank > 0.8);
+    ranks.forEach(r => {
+        r.openings.forEach(i => {
+            const rank = treeOpenings[i].rank;
+            if (computerIsWhite) r.bestRank = Math.max(rank, r.bestRank);
+            else r.bestRank = Math.min(rank, r.bestRank);
+        });
+    });
+
+    // If white, remove all moves good for black and those moves that don't have a
+    // good opening result for white
+    // if black, remove all moves good for white, ... etc.
+    let filteredRanks = ranks.filter(r => computerIsWhite ? (r.rank < 0 && r.bestRank >= 0) : (r.rank < 80 && r.bestRank <= 80));
+    if (filteredRanks.length === 0) filteredRanks = ranks.filter(r => computerIsWhite ? (r.rank < 0) : (r.rank < 80));
     
     let moveId;
-    if (ranks.length > 0) moveId = state.treeMoves.map(tm => tm.move).indexOf(ranks[Math.floor(Math.random() * Math.min(ranks.length, 1))].move);
+    if (filteredRanks.length > 0) moveId = state.treeMoves.map(tm => tm.move).indexOf(filteredRanks[Math.floor(Math.random() * filteredRanks.length)].move);
     else moveId = Math.floor(Math.random() * state.treeMoves.length);
 
     const move = uciToMove(state.treeMoves[moveId].move);
@@ -516,6 +529,10 @@ const playForward = () => {
 const playBack = () => {
     if (movesStack.length <= 0) return;
     if (movesStack.length <= 1 && color === "black") return;
+    if (state.resetBoardOnTap){
+        state.resetBoardOnTap = false;
+        hideOverlay();
+    }
 
     const [dest, orig] = movesStack.pop();
     playMove(orig, dest, true);
@@ -585,10 +602,10 @@ const toggleColor = () => {
     _sendMessage("toggledColor", color);
 }
 
-const resetTraining = (force) => {
-    if (state.resetTrainingOnTap || (typeof force === "boolean" && force)){
-        if (state.mode === "training" || state.mode === "treetrain"){
-            state.resetTrainingOnTap = false;
+const resetBoard = (force) => {
+    if (state.resetBoardOnTap || (typeof force === "boolean" && force)){
+        if (state.mode === "training" || state.mode === "treetrain" || state.mode === "tree"){
+            state.resetBoardOnTap = false;
             hideOverlay();
         }
 
@@ -601,6 +618,8 @@ const resetTraining = (force) => {
             }
         }else if (state.mode === "treetrain"){
             setTreeTrainMode();
+        }else if (state.mode === "tree"){
+            setTreeMode();
         }
     }
 }
@@ -621,7 +640,7 @@ const confettiToss = (withOverlay) => {
     });
     if (withOverlay){
         showOverlay();
-        state.resetTrainingOnTap = true;
+        state.resetBoardOnTap = true;
     }
 }
 
@@ -633,7 +652,7 @@ const checkTrainingFinished = () => {
 
 const setTrainingMode = () => {
     state.mode = "training";
-    resetTraining(true);
+    resetBoard(true);
 
     _sendMessage("setMode", state.mode);
 };
@@ -822,7 +841,7 @@ updateSize();
 window.addEventListener('resize', updateSize);
 setInterval(updateSize, 200);
 
-overlay.addEventListener('click', resetTraining);
+overlay.addEventListener('click', resetBoard);
 
 document.addEventListener('playForward', playForward);
 document.addEventListener('playBack', playBack);
