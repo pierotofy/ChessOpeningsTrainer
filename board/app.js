@@ -37,6 +37,7 @@ const state = {
     mode,
     resetBoardOnTap: false,
     showingShapes: false,
+    showingHint: false,
     treeMoves: [],
     maxTreeMoves,
     playedOpening: {}
@@ -221,8 +222,13 @@ const handleBoardClick = (e) => {
             }
         });
 
-        if (state.mode === "treetrain" && selectedOps.length === 0){
-            setTreeTrainMode(); // Reset
+        if (state.mode === "treetrain"){
+            if (selectedOps.length === 0){
+                if (!state.showingHint){
+                    setTreeTrainMode(); // Reset
+                }
+                state.showingHint = false;
+            }
         }
 
         _sendMessage("showOpenings", JSON.stringify(selectedOps));
@@ -231,9 +237,6 @@ const handleBoardClick = (e) => {
 
 const currentTurn = () => {
     return game.history().length % 2 === 1 ? "black" : "white";
-}
-const nextTurn = () => {
-    return game.history().length % 2 === 0 ? "black" : "white";
 }
 
 const afterPlayerMove = (orig, dest, autoMove) => {
@@ -378,6 +381,8 @@ const playTrainComputerMove = () => {
 
 const checkPlayerMove = (orig, dest) => {
     touchMoved = true;
+
+    if (state.mode === "treetrain") cg.setAutoShapes([]);
 
     pieceStack.push(checkTakePiece(game.move({from: orig, to: dest})));
     updateCg();
@@ -529,6 +534,7 @@ const playForward = () => {
 const playBack = () => {
     if (movesStack.length <= 0) return;
     if (movesStack.length <= 1 && color === "black") return;
+
     if (state.resetBoardOnTap){
         state.resetBoardOnTap = false;
         hideOverlay();
@@ -547,6 +553,17 @@ const playBack = () => {
 
         poStack.pop();
     }else if (state.mode === "treetrain"){
+        if (state.treeMoves.parent){
+            state.treeMoves = state.treeMoves.parent;
+        }else{
+            console.log("Should not have happened");
+        }
+
+        poStack.pop();
+
+        const [dest, orig] = movesStack.pop();
+        playMove(orig, dest, true);
+
         if (state.treeMoves.parent){
             state.treeMoves = state.treeMoves.parent;
         }else{
@@ -695,6 +712,13 @@ const flash = (text) => {
     }, 2000);
 }
 
+const showHint = () => {
+    if (state.mode === "treetrain"){
+        state.showingHint = true;
+        drawTreeMoves();
+    }
+};
+
 const labelPadding = (currentMove) => {
     if (currentMove % 2 == 0){
         if (color === "white") return 48;
@@ -717,7 +741,6 @@ const drawTreeMoves = () => {
     
     let i = 0;
     let labelMargin = {};
-
     state.treeMoves.forEach(treeMove => {
         const move = uciToMove(treeMove.move);
         const [orig, dest] = move;
@@ -851,6 +874,7 @@ document.addEventListener('setTrainingMode', setTrainingMode);
 document.addEventListener('setExploreMode', setExploreMode);
 document.addEventListener('setTreeMode', setTreeMode);
 document.addEventListener('setTreeTrainMode', setTreeTrainMode);
+document.addEventListener('showHint', showHint);
 
 // Debug
 if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||

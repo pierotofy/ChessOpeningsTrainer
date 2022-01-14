@@ -21,6 +21,8 @@ html,body{
     width: 120px;
     padding: 4px;
     border: 1px dashed black;
+    z-index: 4;
+    background: white;
 }
 
 #debug button{

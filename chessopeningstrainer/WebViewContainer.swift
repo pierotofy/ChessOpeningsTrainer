@@ -136,4 +136,8 @@ struct WebViewContainer: UIViewRepresentable {
     func setMaxTreeMoves(maxTreeMoves: Int){
         sendMessage("setMaxTreeMoves", value: String(maxTreeMoves))
     }
+    
+    func showHint(){
+        dispatchEvent("showHint")
+    }
 }

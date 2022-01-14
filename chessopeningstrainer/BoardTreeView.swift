@@ -16,6 +16,7 @@ struct BoardTreeView: View{
     @State var sMaxTreeMoves: Float = Float(AppSettings.shared.maxTreeMoves)
     @State var exploreOpening: Opening?
     @State var trainOpening: Opening?
+    var showHintButton: Bool = false
     
     let webView: WebViewContainer
     
@@ -26,6 +27,8 @@ struct BoardTreeView: View{
         let wvm = WebViewModel(color: color, maxTreeMoves: maxTreeMoves, mode: mode)
         self.webViewModel = wvm
         self.webView = WebViewContainer(webViewModel: wvm)
+        
+        showHintButton = mode == "treetrain"
     }
     
     var board: some View{
@@ -131,6 +134,19 @@ struct BoardTreeView: View{
                         }.buttonStyle(.borderedProminent)
                             .tint(Color.background)
                         .foregroundColor(webViewModel.canPlayBack ? .primary : .gray)
+                        
+                        if showHintButton {
+                            Button(action: {
+                                webView.showHint()
+                            }){
+                                HStack{
+                                    Image(systemName: "questionmark.circle")
+                                    Text("Hint")
+                                }.frame(maxWidth: .infinity, minHeight: 36)
+                            }.buttonStyle(.borderedProminent)
+                                .tint(Color.background)
+                            .foregroundColor(webViewModel.canPlayBack ? .primary : .gray)
+                        }
                         
                     }.padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
                     
