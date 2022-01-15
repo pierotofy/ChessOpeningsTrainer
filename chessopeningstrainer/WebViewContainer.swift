@@ -133,6 +133,10 @@ struct WebViewContainer: UIViewRepresentable {
         dispatchEvent("setExploreMode")
     }
     
+    func setTreeTrainMode(){
+        dispatchEvent("setTreeTrainMode")
+    }
+    
     func setMaxTreeMoves(maxTreeMoves: Int){
         sendMessage("setMaxTreeMoves", value: String(maxTreeMoves))
     }

@@ -16,7 +16,8 @@ struct BoardTreeView: View{
     @State var sMaxTreeMoves: Float = Float(AppSettings.shared.maxTreeMoves)
     @State var exploreOpening: Opening?
     @State var trainOpening: Opening?
-    var showHintButton: Bool = false
+    var treeTrainMode: Bool = false
+    @State var ttStartingPosition: String = AppSettings.shared.ttStartingPosition
     
     let webView: WebViewContainer
     
@@ -24,11 +25,17 @@ struct BoardTreeView: View{
     
     
     init(color: String, maxTreeMoves: Int, mode: String){
-        let wvm = WebViewModel(color: color, maxTreeMoves: maxTreeMoves, mode: mode)
+        var wvm: WebViewModel
+        
+        if mode == "treetrain"{
+            wvm = WebViewModel(color: color, maxTreeMoves: maxTreeMoves, mode: mode, uci: AppSettings.shared.ttStartingPosition)
+        }else{
+            wvm = WebViewModel(color: color, maxTreeMoves: maxTreeMoves, mode: mode)
+        }
         self.webViewModel = wvm
         self.webView = WebViewContainer(webViewModel: wvm)
         
-        showHintButton = mode == "treetrain"
+        treeTrainMode = mode == "treetrain"
     }
     
     var board: some View{
@@ -115,14 +122,25 @@ struct BoardTreeView: View{
                 
                 VStack{
                     HStack {
-                        Button(action: webView.rewind){
-                            HStack{
-                                Image(systemName: "arrow.counterclockwise")
-                                Text("Rewind")
-                            }.frame(maxWidth: .infinity, minHeight: 36)
-                        }.buttonStyle(.borderedProminent)
-                        .tint(Color.background)
-                        .foregroundColor(webViewModel.canPlayBack ? .primary : .gray)
+                        if treeTrainMode {
+                            Button(action: webView.setTreeTrainMode){
+                                HStack{
+                                    Image(systemName: "arrow.counterclockwise")
+                                    Text("Restart")
+                                }.frame(maxWidth: .infinity, minHeight: 36)
+                            }.buttonStyle(.borderedProminent)
+                                .tint(Color.background)
+                                .foregroundColor(.primary)
+                        }else{
+                            Button(action: webView.rewind){
+                                HStack{
+                                    Image(systemName: "arrow.counterclockwise")
+                                    Text("Rewind")
+                                }.frame(maxWidth: .infinity, minHeight: 36)
+                            }.buttonStyle(.borderedProminent)
+                                .tint(Color.background)
+                                .foregroundColor(webViewModel.canPlayBack ? .primary : .gray)
+                        }
                         
                         Button(action: {
                             webView.playBack()
@@ -135,7 +153,7 @@ struct BoardTreeView: View{
                             .tint(Color.background)
                         .foregroundColor(webViewModel.canPlayBack ? .primary : .gray)
                         
-                        if showHintButton {
+                        if treeTrainMode {
                             Button(action: {
                                 webView.showHint()
                             }){
@@ -145,7 +163,7 @@ struct BoardTreeView: View{
                                 }.frame(maxWidth: .infinity, minHeight: 36)
                             }.buttonStyle(.borderedProminent)
                                 .tint(Color.background)
-                            .foregroundColor(webViewModel.canPlayBack ? .primary : .gray)
+                            .foregroundColor(.primary)
                         }
                         
                     }.padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
@@ -184,6 +202,21 @@ struct BoardTreeView: View{
                             .padding()
                         }
                         
+                        if treeTrainMode {
+                            HStack{
+                                Text("Starting Position: ").fontWeight(.bold)
+                                Picker("Random", selection: $ttStartingPosition) {
+                                    ForEach(OpeningMovesModel.shared.getForMaxMovesWithRandom(Int(sMaxTreeMoves)), id: \.self.uci) {
+                                        Text($0.name)
+                                    }
+                                }
+                                .pickerStyle(.wheel)
+                                .onChange(of: ttStartingPosition){ _ in
+                                    AppSettings.shared.ttStartingPosition = ttStartingPosition
+                                }
+                            }
+                        }
+                        
                         HStack{
                             Text("Max Openings: ").fontWeight(.bold)
                             Text(String(Int(sMaxTreeMoves))).padding(.trailing, 16)
@@ -191,6 +224,7 @@ struct BoardTreeView: View{
                                    in: 1...20,
                                    step: 1)
                         }
+                        
                     }.padding(16)
                         .frame(minHeight: 0, maxHeight: .infinity, alignment: .top)
                 }

@@ -21,6 +21,13 @@ class WebViewModel: ObservableObject {
         self.mode = mode
     }
     
+    init(color: String, maxTreeMoves: Int, mode: String, uci: String){
+        self.color = color
+        self.maxTreeMoves = maxTreeMoves
+        self.mode = mode
+        self.uci = uci
+    }
+    
     
     init(uci: String, color: String) {
         self.mode = "explore"

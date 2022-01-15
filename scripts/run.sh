@@ -7,4 +7,4 @@ node gen_openings_json.js
 python rank_openings_json.py
 node add_description.js
 python gen_tree_mode_moves.py
-
+python gen_ui_tree_mode_moves.py

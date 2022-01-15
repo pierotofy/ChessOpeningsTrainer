@@ -212,7 +212,6 @@ const handleBoardClick = (e) => {
                     // Try searching down the tree, as this might be an intermediate
                     // move of an opening sequence
                     if (selectedOps.length === 0){
-                        console.log(m);
                         let tm = m;
                         while(tm && !tm.openings.length) tm = tm.moves[0];
                         if (tm.openings.length > 0) selectedOps = selectedOps.concat(tm.openings.map(idx => treeOpenings[idx]));
@@ -270,6 +269,7 @@ const afterPlayerMove = (orig, dest, autoMove) => {
             ]);
     
             state.resetBoardOnTap = true;
+            showOverlay();
         }
     }else if (state.mode === "tree"){
         // Update tree variations

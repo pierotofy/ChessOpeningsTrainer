@@ -59,6 +59,8 @@ struct Opening: Identifiable, Decodable, Hashable {
 
 
 class OpeningsModel: ObservableObject {
+    static let shared = OpeningsModel()
+    
     @Published var openings: [Opening]
     
     init() {
@@ -74,5 +76,43 @@ class OpeningsModel: ObservableObject {
             print("Cannot load JSON")
         }
 
+    }
+    
+    func ofDepthWithRandom(_ depth: Int) -> [Opening] {
+        var result = ofDepth(depth)
+        result.insert(Opening(name: "Random", uci: "", pgn: "", rank: 0), at: 0)
+        return result
+    }
+    
+    func ofDepth(_ depth: Int) -> [Opening] {
+        var stack: [Opening] = []
+        var result: [Opening] = []
+        
+        var curDepth = 0
+        for o in self.openings {
+            result.append(o)
+            stack.append(o)
+        }
+        
+        while curDepth < depth{
+            var newStack: [Opening] = []
+            
+            while !stack.isEmpty {
+                let o = stack.popLast()!
+                if let variations = o.variations{
+                    for op in variations {
+                        result.append(op)
+                        newStack.append(op)
+                    }
+                }
+            }
+            
+            curDepth += 1
+            stack = newStack
+        }
+        
+        result.sort { $0.name < $1.name }
+        
+        return result
     }
 }

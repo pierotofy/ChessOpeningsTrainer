@@ -13,5 +13,6 @@ public class AppSettings: ObservableObject {
     
     @AppStorage("color") var color: String = "white"
     @AppStorage("maxTreeMoves") var maxTreeMoves: Int = 7
+    @AppStorage("ttStartingPosition") var ttStartingPosition: String = ""
 }
 

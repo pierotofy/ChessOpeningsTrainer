@@ -13,8 +13,6 @@ struct OpeningSelectionView: View{
     @State private var opening: Opening?
     @State public var descrPgn: String = ""
     
-    private var opModel = OpeningsModel()
-    
     func searchOpenings(_ ops: [Opening], depth: Int) -> [Opening]{
         var result: [Opening] = ops.filter { $0.name.contains(searchText) }
         
@@ -31,9 +29,9 @@ struct OpeningSelectionView: View{
     
     private var openings: [Opening] {
         if !searchText.isEmpty {
-            return searchOpenings(opModel.openings, depth: 0)
+            return searchOpenings(OpeningsModel.shared.openings, depth: 0)
         } else {
-            return opModel.openings
+            return OpeningsModel.shared.openings
         }
     }
     
