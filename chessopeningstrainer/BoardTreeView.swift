@@ -10,6 +10,7 @@ import SwiftUI
 import WebKit
 
 struct BoardTreeView: View{
+    @StateObject var storeManager = StoreManager()
     @ObservedObject var webViewModel: WebViewModel
     @State var descrPgn: String = ""
     @State var showSettings: Bool = false

@@ -65,7 +65,7 @@ html,body{
     right: 100%;
     width: 100%;
     text-align: center;
-    animation-duration: 0.5s;
+    animation-duration: 0.25s;
     animation-name: fadeSlide;
     animation-delay: 0.7s;
     animation-fill-mode: forwards;
@@ -75,7 +75,7 @@ html,body{
 .flash .text{
     box-shadow: 0 0 10px #424242;
     background: rgb(40 131 54 / 85%);
-    border-radius: 12px;
+    border-radius: 0px;
     padding: 8px;
     color: white;
 }
@@ -88,6 +88,6 @@ html,body{
   
     to {
       opacity: 0%;
-      top: 60%;
+      top: 55%;
     }
   }

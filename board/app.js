@@ -332,7 +332,6 @@ const afterPlayerMove = (orig, dest, autoMove) => {
             }
             state.treeMoves = topTreeMoves(treeMove.moves, currentTurn() );
             state.treeMoves.parent = prevTree;
-            console.log(currentTurn(), state.treeMoves)
 
             if (state.treeMoves.length === 0){
                 confettiToss(true);
@@ -341,6 +340,14 @@ const afterPlayerMove = (orig, dest, autoMove) => {
                     if (rankId === 0) flash("Best");
                     else if (rankId >= 1) flash("Excellent");
                     else if (rankId > 2) flash("Good");
+
+                    cg.setAutoShapes([
+                        {
+                            orig,
+                            dest,
+                            brush: 'green'
+                        }
+                    ]);
                 }
             }
 
@@ -579,6 +586,7 @@ const playBack = () => {
             console.log("Should not have happened");
         }
 
+        cg.setAutoShapes([]);
         poStack.pop();
     }
     
@@ -741,6 +749,9 @@ const labelPadding = (currentMove) => {
 }
 
 let brushes = ["blue", "green", "pink", "red", "orange", "white", "grey"];
+const getBrushByRank = (rankId) => {
+    return rankId < brushes.length ? brushes[rankId] : brushes[brushes.length - 1]
+};
 
 const drawTreeMoves = () => {
     const currentMove = game.history().length;
@@ -756,7 +767,7 @@ const drawTreeMoves = () => {
         const move = uciToMove(treeMove.move);
         const [orig, dest] = move;
 
-        const brush = i < brushes.length ? brushes[i] : brushes[brushes.length - 1];
+        const brush = getBrushByRank(i);
 
         arrows.push({
             orig,

@@ -21,6 +21,8 @@
 		6D66C79C2765A45000882CC4 /* gen in Resources */ = {isa = PBXBuildFile; fileRef = 6D66C79B2765A45000882CC4 /* gen */; };
 		6DB389F12783EEE900DB3A07 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB389F02783EEE900DB3A07 /* ColorExtension.swift */; };
 		6DB389F527935ED900DB3A07 /* OpeningMovesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB389F427935ED900DB3A07 /* OpeningMovesModel.swift */; };
+		6DB389F827937CAA00DB3A07 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DB389F727937CAA00DB3A07 /* StoreKit.framework */; };
+		6DB389FA27937CC600DB3A07 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB389F927937CC600DB3A07 /* StoreManager.swift */; };
 		6DC4ABE2276EE910007A68F0 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC4ABE1276EE910007A68F0 /* AppSettings.swift */; };
 		6DE4EC542777CFBA0050536F /* DescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DE4EC532777CFBA0050536F /* DescriptionView.swift */; };
 		6DE4EC562777D01D0050536F /* HtmlStringView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DE4EC552777D01D0050536F /* HtmlStringView.swift */; };
@@ -48,6 +50,8 @@
 		6D66C79B2765A45000882CC4 /* gen */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gen; path = ../gen; sourceTree = "<group>"; };
 		6DB389F02783EEE900DB3A07 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
 		6DB389F427935ED900DB3A07 /* OpeningMovesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpeningMovesModel.swift; sourceTree = "<group>"; };
+		6DB389F727937CAA00DB3A07 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
+		6DB389F927937CC600DB3A07 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		6DC4ABE1276EE910007A68F0 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		6DE4EC532777CFBA0050536F /* DescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionView.swift; sourceTree = "<group>"; };
 		6DE4EC552777D01D0050536F /* HtmlStringView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HtmlStringView.swift; sourceTree = "<group>"; };
@@ -63,6 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6DB389F827937CAA00DB3A07 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +77,7 @@
 		6D66C75A275DAF8700882CC4 = {
 			isa = PBXGroup;
 			children = (
+				6DB389F927937CC600DB3A07 /* StoreManager.swift */,
 				6DB389F02783EEE900DB3A07 /* ColorExtension.swift */,
 				6DEB281B27826ABF002514C2 /* SOViewItem.swift */,
 				6DEB281727822108002514C2 /* ShowOpeningsView.swift */,
@@ -96,6 +102,7 @@
 				6D66C78C2761A5EA00882CC4 /* WebViewContainer.swift */,
 				6D66C79B2765A45000882CC4 /* gen */,
 				6D66C76B275DAF8900882CC4 /* Products */,
+				6DB389F627937CAA00DB3A07 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -105,6 +112,14 @@
 				6D66C76A275DAF8900882CC4 /* Chess Openings Trainer.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		6DB389F627937CAA00DB3A07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6DB389F727937CAA00DB3A07 /* StoreKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -195,6 +210,7 @@
 				6D1DD055276C40E400101FBF /* URLQueryParams.swift in Sources */,
 				6DE4EC542777CFBA0050536F /* DescriptionView.swift in Sources */,
 				6DE4EC562777D01D0050536F /* HtmlStringView.swift in Sources */,
+				6DB389FA27937CC600DB3A07 /* StoreManager.swift in Sources */,
 				6DEB28162780D60A002514C2 /* MainView.swift in Sources */,
 				6DC4ABE2276EE910007A68F0 /* AppSettings.swift in Sources */,
 			);
