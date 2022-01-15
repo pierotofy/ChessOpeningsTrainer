@@ -63,9 +63,15 @@ if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandl
 window._handleMessage = (key, value) => {
     if (key === "dispatchEvent") document.dispatchEvent(new Event(value));
     else if (key === "setMaxTreeMoves"){
-        if (mode === "tree"){
+        if (mode === "tree" || mode === "treetrain"){
             state.maxTreeMoves = parseInt(value);
-            setTreeMode();
+            if (mode === "tree") setTreeMode();
+            else setTreeTrainMode();
+        }
+    }else if (key === "setUCI"){
+        if (mode === "treetrain"){
+            uci = value;
+            setTreeTrainMode();
         }
     }
 };
@@ -223,10 +229,13 @@ const handleBoardClick = (e) => {
 
         if (state.mode === "treetrain"){
             if (selectedOps.length === 0){
-                if (!state.showingHint){
+                if (state.showingHint){
+                    state.showingHint = false;
+                    state.showingShapes = false;
+                    cg.setAutoShapes([]);
+                }else{
                     setTreeTrainMode(); // Reset
                 }
-                state.showingHint = false;
             }
         }
 
@@ -321,9 +330,9 @@ const afterPlayerMove = (orig, dest, autoMove) => {
                 if (tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
                 else poStack.push({});
             }
-
             state.treeMoves = topTreeMoves(treeMove.moves, currentTurn() );
             state.treeMoves.parent = prevTree;
+            console.log(currentTurn(), state.treeMoves)
 
             if (state.treeMoves.length === 0){
                 confettiToss(true);
@@ -367,7 +376,7 @@ const playTrainComputerMove = () => {
     // If white, remove all moves good for black and those moves that don't have a
     // good opening result for white
     // if black, remove all moves good for white, ... etc.
-    let filteredRanks = ranks.filter(r => computerIsWhite ? (r.rank < 0 && r.bestRank >= 0) : (r.rank < 80 && r.bestRank <= 80));
+    let filteredRanks = ranks.filter(r => computerIsWhite ? (r.rank >= 0 && r.bestRank >= 0) : (r.rank <= 80 && r.bestRank <= 80));
     if (filteredRanks.length === 0) filteredRanks = ranks.filter(r => computerIsWhite ? (r.rank < 0) : (r.rank < 80));
     
     let moveId;
@@ -713,10 +722,12 @@ const flash = (text) => {
 }
 
 const showHint = () => {
-    if (state.mode === "treetrain"){
-        state.showingHint = true;
-        drawTreeMoves();
-    }
+    setTimeout(() => {
+        if (state.mode === "treetrain"){
+            state.showingHint = true;
+            drawTreeMoves();
+        }
+    }, 0);
 };
 
 const labelPadding = (currentMove) => {
@@ -830,7 +841,7 @@ const setTreeTrainMode = () => {
         playTreeTrainInitMoves();
         if ((uci && ((color === "black" && uci.split(" ").length % 2 == 0) || 
             color === "white" && uci.split(" ").length % 2 == 1)) ||
-            color === "black"){
+            (!uci && color === "black")){
                 playTrainComputerMove();
         }
 

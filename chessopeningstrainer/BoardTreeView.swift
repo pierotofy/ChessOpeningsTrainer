@@ -189,6 +189,11 @@ struct BoardTreeView: View{
                 .sheet(isPresented: $showSettings, onDismiss: {
                     AppSettings.shared.maxTreeMoves = Int(sMaxTreeMoves)
                     webView.setMaxTreeMoves(maxTreeMoves: Int(sMaxTreeMoves))
+                    
+                    if treeTrainMode{
+                        AppSettings.shared.ttStartingPosition = ttStartingPosition
+                        webView.setUCI(uci: ttStartingPosition)
+                    }
                 }){
                     VStack{
                         HStack{
@@ -211,9 +216,6 @@ struct BoardTreeView: View{
                                     }
                                 }
                                 .pickerStyle(.wheel)
-                                .onChange(of: ttStartingPosition){ _ in
-                                    AppSettings.shared.ttStartingPosition = ttStartingPosition
-                                }
                             }
                         }
                         

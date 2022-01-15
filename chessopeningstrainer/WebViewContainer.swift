@@ -141,6 +141,10 @@ struct WebViewContainer: UIViewRepresentable {
         sendMessage("setMaxTreeMoves", value: String(maxTreeMoves))
     }
     
+    func setUCI(uci: String){
+        sendMessage("setUCI", value: uci)
+    }
+    
     func showHint(){
         dispatchEvent("showHint")
     }

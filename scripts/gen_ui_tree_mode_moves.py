@@ -15,6 +15,7 @@ with open(infile) as f:
 openings = db['openings']
 
 result = []
+names_dict = {}
 
 def parseTree(moves, parent_uci, depth, max_moves):
     moves.sort(key=lambda m: m['rank'], reverse=depth % 2 == 0)
@@ -35,15 +36,18 @@ def parseTree(moves, parent_uci, depth, max_moves):
                 break
             
         if selected_op is not None:
-            result[max_moves - 1].append({
-                'name': selected_op['name'],
-                'uci': uci
-            })
+            if names_dict.get(selected_op['name']) is None:
+                result[max_moves - 1].append({
+                    'name': selected_op['name'],
+                    'uci': uci
+                })
+                names_dict[selected_op['name']] = True
 
             if depth < DEPTH:
                 parseTree(m['moves'], uci + " ", depth + 1, max_moves)
 
-for max_moves in range(1, MAX_MOVES + 1):            
+for max_moves in range(1, MAX_MOVES + 1):    
+    names_dict = {}        
     parseTree(db['moves'], "", 0, max_moves)
 
 for moves in result:
