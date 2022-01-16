@@ -8,7 +8,7 @@ from stockfish import Stockfish
 #infile = os.path.join(os.path.dirname(__file__), "..", "gen", "openings-ranked.json")
 infile = os.path.join(os.path.dirname(__file__), "..", "test-ops.json")
 outfile = os.path.join(os.path.dirname(__file__), "..", "board", "gen", "openings-moves-test.js")
-#outfile = os.path.join(os.path.dirname(__file__), "..", "board", "gen", "openings-moves.js")
+# outfile = os.path.join(os.path.dirname(__file__), "..", "board", "gen", "openings-moves.js")
 
 
 with open(infile) as f:
@@ -78,16 +78,6 @@ for o in openings_list:
 
 print("Computed FEN dict")
 
-# DEBUG
-i = 0
-for o in openings_list:
-    print(i, o['name'])
-    i += 1
-for d in fens:
-    print(d, " --- ", fens[d])
-#exit(1)
-# END DEBUG
-
 s = Stockfish(parameters={"Threads": 4})
     
 @lru_cache(maxsize=None)
@@ -104,9 +94,12 @@ def evaluate(fen):
         rank = None
     return rank
 
+@lru_cache(maxsize=None)
 def moves2fen(moves):
+    moves = moves.split(" ")
     b = chess.Board()
     for m in moves:
+        if m == "": continue
         b.push_uci(m)
     return b.fen()
 
@@ -124,7 +117,7 @@ def get_moves_starting_with_at(starts_with_uci, depth):
                 if depth < len(moves):
                     moves_d[moves[depth]] = True
 
-                    fen = moves2fen(moves[:depth])
+                    fen = moves2fen(" ".join(moves[:depth]))
                     if not fen in fen_d:
                         fen_d[fen] = [o]
                     else:
@@ -135,8 +128,8 @@ def get_moves_starting_with_at(starts_with_uci, depth):
         for o in openings_list:
             moves = o['uci'].strip().split(" ")
             if depth < len(moves):
-                for i in range(1, min(8, len(moves))):
-                    fen = moves2fen(moves[:i])
+                for i in range(1, len(moves)):
+                    fen = moves2fen(" ".join(moves[:i]))
                     if fen in fen_d:
                         moves_d[moves[depth]] = True
 

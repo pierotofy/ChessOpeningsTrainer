@@ -188,10 +188,12 @@ struct BoardTreeView: View{
                     }
                 }
                 .sheet(isPresented: $showSettings, onDismiss: {
-                    AppSettings.shared.maxTreeMoves = Int(sMaxTreeMoves)
-                    webView.setMaxTreeMoves(maxTreeMoves: Int(sMaxTreeMoves))
+                    if AppSettings.shared.maxTreeMoves != Int(sMaxTreeMoves){
+                        AppSettings.shared.maxTreeMoves = Int(sMaxTreeMoves)
+                        webView.setMaxTreeMoves(maxTreeMoves: Int(sMaxTreeMoves))
+                    }
                     
-                    if treeTrainMode{
+                    if treeTrainMode && AppSettings.shared.ttStartingPosition != ttStartingPosition{
                         AppSettings.shared.ttStartingPosition = ttStartingPosition
                         webView.setUCI(uci: ttStartingPosition)
                     }

@@ -220,7 +220,7 @@ const handleBoardClick = (e) => {
                     if (selectedOps.length === 0){
                         let tm = m;
                         while(tm && !tm.openings.length) tm = tm.moves[0];
-                        if (tm.openings.length > 0) selectedOps = selectedOps.concat(tm.openings.map(idx => treeOpenings[idx]));
+                        if (tm && tm.openings.length > 0) selectedOps = selectedOps.concat(tm.openings.map(idx => treeOpenings[idx]));
                         else selectedOps = []; // No openings (strange?)
                     }
                 }
@@ -294,7 +294,7 @@ const afterPlayerMove = (orig, dest, autoMove) => {
                 // of an opening sequence
                 let tm = treeMove;
                 while(tm && !tm.openings.length) tm = tm.moves[0];
-                if (tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
+                if (tm && tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
                 else poStack.push({});
             }
             
@@ -327,7 +327,7 @@ const afterPlayerMove = (orig, dest, autoMove) => {
                 // of an opening sequence
                 let tm = treeMove;
                 while(tm && !tm.openings.length) tm = tm.moves[0];
-                if (tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
+                if (tm && tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
                 else poStack.push({});
             }
             state.treeMoves = topTreeMoves(treeMove.moves, currentTurn() );
