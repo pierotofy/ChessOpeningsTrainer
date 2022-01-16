@@ -5,9 +5,10 @@ from itertools import product, permutations
 from functools import lru_cache
 from stockfish import Stockfish
 
-infile = os.path.join(os.path.dirname(__file__), "..", "gen", "openings-ranked.json")
-#infile = os.path.join(os.path.dirname(__file__), "..", "test-ops.json")
-outfile = os.path.join(os.path.dirname(__file__), "..", "board", "gen", "openings-moves.js")
+#infile = os.path.join(os.path.dirname(__file__), "..", "gen", "openings-ranked.json")
+infile = os.path.join(os.path.dirname(__file__), "..", "test-ops.json")
+outfile = os.path.join(os.path.dirname(__file__), "..", "board", "gen", "openings-moves-test.js")
+#outfile = os.path.join(os.path.dirname(__file__), "..", "board", "gen", "openings-moves.js")
 
 
 with open(infile) as f:
@@ -77,6 +78,16 @@ for o in openings_list:
 
 print("Computed FEN dict")
 
+# DEBUG
+i = 0
+for o in openings_list:
+    print(i, o['name'])
+    i += 1
+for d in fens:
+    print(d, " --- ", fens[d])
+#exit(1)
+# END DEBUG
+
 s = Stockfish(parameters={"Threads": 4})
     
 @lru_cache(maxsize=None)
@@ -93,18 +104,44 @@ def evaluate(fen):
         rank = None
     return rank
 
+def moves2fen(moves):
+    b = chess.Board()
+    for m in moves:
+        b.push_uci(m)
+    return b.fen()
+
+
 def get_moves_starting_with_at(starts_with_uci, depth):
     print(starts_with_uci, depth)
 
     moves_d = {}
-    for o in openings_list:
-        for uci in compute_transpose(starts_with_uci):
+    fen_d = {}
+
+    for uci in compute_transpose(starts_with_uci):
+        for o in openings_list:
             if o.get('uci').startswith(uci):
                 moves = o['uci'].strip().split(" ")
                 if depth < len(moves):
                     moves_d[moves[depth]] = True
-    
+
+                    fen = moves2fen(moves[:depth])
+                    if not fen in fen_d:
+                        fen_d[fen] = [o]
+                    else:
+                        if not o in fen_d[fen]:
+                            fen_d[fen].append(o)
+
+    for fen in fen_d:
+        for o in openings_list:
+            moves = o['uci'].strip().split(" ")
+            if depth < len(moves):
+                for i in range(1, min(8, len(moves))):
+                    fen = moves2fen(moves[:i])
+                    if fen in fen_d:
+                        moves_d[moves[depth]] = True
+
     all_moves = list(moves_d.keys())
+    
     
     result = []
     b = chess.Board()

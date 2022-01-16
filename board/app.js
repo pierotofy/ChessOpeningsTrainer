@@ -23,8 +23,8 @@ const loadOpeningsTree = (done) => {
     else{
         let script = document.createElement('script');
         script.onload = onLoad;
-        script.src = "gen/openings-moves.js";
-        // script.src = "gen/om.js";
+        // script.src = "gen/openings-moves.js";
+        script.src = "gen/openings-moves-test.js";
         document.getElementsByTagName('head')[0].appendChild(script);
     }
 };
