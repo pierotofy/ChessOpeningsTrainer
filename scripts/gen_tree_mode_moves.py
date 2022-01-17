@@ -5,31 +5,10 @@ from itertools import product, permutations
 from functools import lru_cache
 from stockfish import Stockfish
 
-#infile = os.path.join(os.path.dirname(__file__), "..", "gen", "openings-ranked.json")
-infile = os.path.join(os.path.dirname(__file__), "..", "test-ops.json")
+infile = os.path.join(os.path.dirname(__file__), "..", "gen", "openings-ranked.json")
+#infile = os.path.join(os.path.dirname(__file__), "..", "test-ops.json")
 outfile = os.path.join(os.path.dirname(__file__), "..", "board", "gen", "openings-moves-test.js")
 # outfile = os.path.join(os.path.dirname(__file__), "..", "board", "gen", "openings-moves.js")
-
-
-with open(infile) as f:
-    openings = json.loads(f.read())
-
-openings_list = []
-
-def populate(ops):
-    for o in ops:
-        variations = o.get('variations')
-
-        if 'variations' in o:
-            del o['variations']
-        
-        openings_list.append(o)
-        if variations:
-            populate(variations)
-
-populate(openings)
-
-print("Expanded %s openings" % len(openings_list))
 
 def flatten(t):
     return [item for sublist in t for item in sublist]
@@ -42,7 +21,10 @@ def compute_transpose(uci):
     moves = uci.strip().split(" ")
     if len(moves) > 8:
         return [uci.strip()]
-    
+
+    black = moves[1::2]
+    white = moves[::2]
+
     black = moves[1::2]
     white = moves[::2]
 
@@ -56,23 +38,62 @@ def compute_transpose(uci):
         while len(b) < len(w):
             b += ['']
 
-        result.append(" ".join(list(filter(lambda m: len(m) > 0, flatten((zip(w, b)))))))
+        result.append(" ".join(list(filter(lambda m: len(m) > 0, flatten((zip(
+w, b)))))))
     return result
 
+
+with open(infile) as f:
+    openings = json.loads(f.read())
+
+openings_list = []
+
+def populate(ops):
+    for o in ops:
+        variations = o.get('variations')
+        o['uci_transposes'] = compute_transpose(o['uci'])
+
+        if 'variations' in o:
+            del o['variations']
+        
+        openings_list.append(o)
+        if variations:
+            populate(variations)
+
+populate(openings)
+
+print("Expanded %s openings" % len(openings_list))
+
 fens = {}
+b = chess.Board()
+initial_fen = b.fen()
+fens[initial_fen] = []
 
 idx = 0
-for o in openings_list:
-    moves = o.get('uci').strip().split(" ")
-    b = chess.Board()
+first_moves_d = {}
 
-    for m in moves:
-        b.push_uci(m)
-        fen = b.fen()
-        if fen in fens:
-            fens[fen].append(idx)
-        else:
-            fens[fen] = [idx]
+for o in openings_list:
+    all_ucis = o['uci_transposes']
+    for uci in all_ucis:
+        moves = uci.split(" ")
+        b = chess.Board()
+
+        if len(moves) == 1:
+            if idx not in fens[initial_fen]:
+                fens[initial_fen].append(idx)
+
+        for m in moves:
+            try:
+                b.push_uci(m)
+            except ValueError as e:
+                continue
+
+            fen = b.fen()
+            if fen in fens:
+                if idx not in fens[fen]:
+                    fens[fen].append(idx)
+            else:
+                fens[fen] = [idx]
     
     idx += 1
 
@@ -83,7 +104,7 @@ s = Stockfish(parameters={"Threads": 4})
 @lru_cache(maxsize=None)
 def evaluate(fen):
     s.set_fen_position(fen)
-    s.set_depth(20)
+    s.set_depth(5)
     evaluation = s.get_evaluation()
     if evaluation['type'] == 'cp':
         rank = evaluation['value']
@@ -94,80 +115,55 @@ def evaluate(fen):
         rank = None
     return rank
 
-@lru_cache(maxsize=None)
-def moves2fen(moves):
-    moves = moves.split(" ")
-    b = chess.Board()
-    for m in moves:
-        if m == "": continue
-        b.push_uci(m)
-    return b.fen()
-
-
-def get_moves_starting_with_at(starts_with_uci, depth):
-    print(starts_with_uci, depth)
-
-    moves_d = {}
-    fen_d = {}
-
-    for uci in compute_transpose(starts_with_uci):
-        for o in openings_list:
-            if o.get('uci').startswith(uci):
-                moves = o['uci'].strip().split(" ")
-                if depth < len(moves):
-                    moves_d[moves[depth]] = True
-
-                    fen = moves2fen(" ".join(moves[:depth]))
-                    if not fen in fen_d:
-                        fen_d[fen] = [o]
-                    else:
-                        if not o in fen_d[fen]:
-                            fen_d[fen].append(o)
-
-    for fen in fen_d:
-        for o in openings_list:
-            moves = o['uci'].strip().split(" ")
-            if depth < len(moves):
-                for i in range(1, len(moves)):
-                    fen = moves2fen(" ".join(moves[:i]))
-                    if fen in fen_d:
-                        moves_d[moves[depth]] = True
-
-    all_moves = list(moves_d.keys())
+def get_moves_starting_at(fen, depth):
+    if not fen in fens:
+        return []
     
-    
+    print(fen, depth)
+
     result = []
-    b = chess.Board()
-    starting_moves = []
+    op_idxs = fens[fen]
+    moves_d = {}
+    
+    for op_idx in op_idxs:
+        op = openings_list[op_idx]
+        all_ucis = op['uci_transposes']
+        for uci in all_ucis:
+            moves = uci.split(" ")
+            if depth < len(moves):
+                m = moves[depth]
 
-    if len(starts_with_uci) > 0:
-        starting_moves = starts_with_uci.strip().split(" ")
-        for m in starting_moves:
-            b.push_uci(m)
+                if m in moves_d:
+                    continue
 
-    starting_fen = b.fen()
+                b = chess.Board()
+                b.set_fen(fen)
+                try:
+                    b.push_uci(m)
+                except ValueError as e:
+                    # Skip, invalid moves
+                    continue
 
-    for m in all_moves:
-        b.set_fen(starting_fen)
-        b.push_uci(m)
-        fen = b.fen()
+                moves_d[m] = True
+                fen_after_move = b.fen()
 
-        uci_prefix = ""
-        if len(starts_with_uci.strip()) > 0:
-            uci_prefix = starts_with_uci.strip() + " "
-
-        result.append({
-            'move': m,
-            'rank': evaluate(fen),
-            'openings': fens.get(fen, []),
-            'moves': get_moves_starting_with_at(uci_prefix + m, depth + 1)
-        })
+                result.append({
+                    'move': m,
+                    'rank': evaluate(fen_after_move),
+                    'openings': fens.get(fen_after_move, []),
+                    'moves': get_moves_starting_at(fen_after_move, depth + 1)
+                })
 
     return result
 
+moves = get_moves_starting_at(initial_fen, 0)
+
+for o in openings_list:
+    del o['uci_transposes']
+
 output = {
     'openings': openings_list,
-    'moves': get_moves_starting_with_at("", 0)
+    'moves': moves
 }
 
 with open(outfile, "w") as f:

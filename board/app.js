@@ -110,6 +110,10 @@ const updateSize = () => {
     lastSize.h = h;
 }
 
+const getCurrentUci = () => {
+    return movesStack.map(m => `${m[0]}${m[1]}`).join(" ");
+};
+
 // Chess engine
 const game = new Chess();
 const calcDests = () => {
@@ -157,6 +161,58 @@ const uciToMove = (uci) => {
     return result;
 };
 
+const findCurrentOpening = (treeMove, searchTree = false, afterUciMove = "") => {
+    let currentUci = (getCurrentUci() + " " + afterUciMove).trim();
+    
+    for (let opIdx of treeMove.openings){
+        const op = treeOpenings[opIdx];
+        if (op.uci.trim() === currentUci){
+            return op;
+        }
+    }
+
+    if (!searchTree) return null;
+
+    // Search down the move tree, this might be an intermediate move
+    // of an opening sequence
+    let tm = treeMove;
+    while(tm && !tm.openings.length){
+        if (tm.moves.length > 1) return null; // Cannot choose one opening: there could be multiple!
+        tm = tm.moves[0];
+    }
+    if (tm && tm.openings.length === 1) return treeOpenings[tm.openings[0]]
+    return null;
+};
+
+const findCurrentOpeningsList = (clickedSquare) => {
+    let selectedOps = [];
+
+    state.treeMoves.forEach(m => {
+        const [ _, dest ] = uciToMove(m.move);
+        if (dest === clickedSquare && m.openings){
+            console.log(m.move)
+            let selectedOp = findCurrentOpening(m, false, m.move);
+
+            if (selectedOp) {
+                selectedOps = selectedOps.concat([selectedOp]);
+            }else{
+                selectedOps = selectedOps.concat(m.openings.map(idx => treeOpenings[idx]));
+                
+                // Try searching down the tree, as this might be an intermediate
+                // move of an opening sequence
+                if (selectedOps.length === 0){
+                    let tm = m;
+                    while(tm && !tm.openings.length) tm = tm.moves[0];
+                    if (tm && tm.openings.length > 0) selectedOps = selectedOps.concat(tm.openings.map(idx => treeOpenings[idx]));
+                    else selectedOps = []; // No openings (strange?)
+                }
+            }
+        }
+    });
+
+    return selectedOps;
+};
+
 const updateCg = () => {
     cg.set({
         orientation: color,
@@ -192,40 +248,7 @@ const handleBoardClick = (e) => {
         let clickedSquare = color === "white" ? game.SQUARES[idy * 8 + idx] : game.SQUARES[(7 - idy) * 8 + (7 - idx)];
         if (!clickedSquare) return;
         
-        let selectedOps = [];
-
-        state.treeMoves.forEach(m => {
-            const [ _, dest ] = uciToMove(m.move);
-            if (dest === clickedSquare && m.openings){
-                let selectedOp = null;
-                const currentMove = game.history().length;
-                
-                for (let opIdx of m.openings){
-                    const op = treeOpenings[opIdx];
-                    let numMoves = op.uci.trim().split(" ").length;
-
-                    if (numMoves === currentMove + 1){
-                        selectedOp = op;
-                        break;
-                    }
-                }
-
-                if (selectedOp) {
-                    selectedOps = selectedOps.concat([selectedOp]);
-                }else{
-                    selectedOps = selectedOps.concat(m.openings.map(idx => treeOpenings[idx]));
-                    
-                    // Try searching down the tree, as this might be an intermediate
-                    // move of an opening sequence
-                    if (selectedOps.length === 0){
-                        let tm = m;
-                        while(tm && !tm.openings.length) tm = tm.moves[0];
-                        if (tm && tm.openings.length > 0) selectedOps = selectedOps.concat(tm.openings.map(idx => treeOpenings[idx]));
-                        else selectedOps = []; // No openings (strange?)
-                    }
-                }
-            }
-        });
+        let selectedOps = findCurrentOpeningsList(clickedSquare);
 
         if (state.mode === "treetrain"){
             if (selectedOps.length === 0){
@@ -287,15 +310,12 @@ const afterPlayerMove = (orig, dest, autoMove) => {
 
         if (!treeMove) confettiToss(true);
         else{
-            if (treeMove.openings.length > 0){
-                poStack.push(treeOpenings[treeMove.openings[0]]);
-            }else if (treeMove.moves.length > 0){
-                // Search down the move, this might be an intermediate move
-                // of an opening sequence
-                let tm = treeMove;
-                while(tm && !tm.openings.length) tm = tm.moves[0];
-                if (tm && tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
-                else poStack.push({});
+            const currentOp = findCurrentOpening(treeMove, true);
+
+            if (currentOp){
+                poStack.push(currentOp);
+            }else{
+                poStack.push({});
             }
             
             state.treeMoves = topTreeMoves(treeMove.moves, currentTurn());
@@ -907,6 +927,7 @@ if (/192\.168\.\d+\.\d+/.test(window.location.hostname) ||
     window.cg = cg;
     window.game = game;
     window.domBoard = domBoard;
+    window.movesStack = movesStack
 }
 
 // ==== END INIT ====
