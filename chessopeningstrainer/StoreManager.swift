@@ -9,17 +9,20 @@ import Foundation
 import StoreKit
 
 class StoreManager: NSObject, ObservableObject, SKProductsRequestDelegate, SKPaymentTransactionObserver {
-    @Published var isPro : Bool = AppSettings.shared.isPro
+    @Published var isPro : Bool
     @Published var transactionState: SKPaymentTransactionState?
+    @Published var purchasing: Bool = false
 
     var isProKey = "com.masseranolabs.chessopeningstrainer.IAP.pro"
     
     func setPurchased(){
         isPro = true
         AppSettings.shared.isPro = true
+        purchasing = false
     }
     
     override init (){
+        self.isPro = AppSettings.shared.isPro
         super.init()
         SKPaymentQueue.default().add(self)
     }
@@ -56,6 +59,7 @@ class StoreManager: NSObject, ObservableObject, SKProductsRequestDelegate, SKPay
     }
     
     func purchase(){
+        purchasing = true
         print("Start requesting products ...")
         let request = SKProductsRequest(productIdentifiers: Set([isProKey]))
         request.delegate = self
@@ -63,6 +67,7 @@ class StoreManager: NSObject, ObservableObject, SKProductsRequestDelegate, SKPay
     }
     
     func restore() {
+        SKPaymentQueue.default().add(self)
         SKPaymentQueue.default().restoreCompletedTransactions()
     }
     
@@ -80,10 +85,13 @@ class StoreManager: NSObject, ObservableObject, SKProductsRequestDelegate, SKPay
             case .failed, .deferred:
                 print("Payment Queue Error: \(String(describing: transaction.error))")
                 transactionState = .failed
+                purchasing = false
             default:
                 queue.finishTransaction(transaction)
             }
         }
+        
+        
     }
     
 }

@@ -23,8 +23,7 @@ const loadOpeningsTree = (done) => {
     else{
         let script = document.createElement('script');
         script.onload = onLoad;
-        // script.src = "gen/openings-moves.js";
-        script.src = "gen/openings-moves-test.js";
+        script.src = "gen/openings-moves.js";
         document.getElementsByTagName('head')[0].appendChild(script);
     }
 };
@@ -256,8 +255,6 @@ const handleBoardClick = (e) => {
                     state.showingHint = false;
                     state.showingShapes = false;
                     cg.setAutoShapes([]);
-                }else{
-                    setTreeTrainMode(); // Reset
                 }
             }
         }
@@ -308,7 +305,7 @@ const afterPlayerMove = (orig, dest, autoMove) => {
         const treeMove = state.treeMoves.find(tm => tm.move === `${orig}${dest}`);
         const prevTree = state.treeMoves;
 
-        if (!treeMove) confettiToss(true);
+        if (!treeMove) flash("Completed");
         else{
             const currentOp = findCurrentOpening(treeMove, true);
 
@@ -320,7 +317,7 @@ const afterPlayerMove = (orig, dest, autoMove) => {
             
             state.treeMoves = topTreeMoves(treeMove.moves, currentTurn());
             state.treeMoves.parent = prevTree;
-            if (state.treeMoves.length === 0) confettiToss(true); // Done!
+            if (state.treeMoves.length === 0) flash("Completed");
             drawTreeMoves();
         }
     }else if (state.mode === "treetrain"){
@@ -340,21 +337,19 @@ const afterPlayerMove = (orig, dest, autoMove) => {
 
             let rankId = ranks.map(r => r.move).indexOf(treeMove.move);
             
-            if (treeMove.openings.length > 0){
-                poStack.push(treeOpenings[treeMove.openings[0]]);
-            }else if (treeMove.moves.length > 0){
-                // Search down the move, this might be an intermediate move
-                // of an opening sequence
-                let tm = treeMove;
-                while(tm && !tm.openings.length) tm = tm.moves[0];
-                if (tm && tm.openings.length > 0) poStack.push(treeOpenings[tm.openings[0]]);
-                else poStack.push({});
+            const currentOp = findCurrentOpening(treeMove, true);
+            if (currentOp){
+                poStack.push(currentOp);
+            }else{
+                poStack.push({});
             }
+
             state.treeMoves = topTreeMoves(treeMove.moves, currentTurn() );
             state.treeMoves.parent = prevTree;
 
             if (state.treeMoves.length === 0){
-                confettiToss(true);
+                flash("Completed");
+                // confettiToss(true);
             }else{
                 if (!autoMove){
                     if (rankId === 0) flash("Best");
@@ -589,25 +584,28 @@ const playBack = () => {
 
         poStack.pop();
     }else if (state.mode === "treetrain"){
-        if (state.treeMoves.parent){
-            state.treeMoves = state.treeMoves.parent;
-        }else{
-            console.log("Should not have happened");
-        }
+        if (!state.showingShapes || state.showingHint){
+            if (state.treeMoves.parent){
+                state.treeMoves = state.treeMoves.parent;
+            }else{
+                console.log("Should not have happened");
+            }
+    
+            poStack.pop();
+            
+            const [dest, orig] = movesStack.pop();
+            playMove(orig, dest, true);
 
-        poStack.pop();
+            if (state.treeMoves.parent){
+                state.treeMoves = state.treeMoves.parent;
+            }else{
+                console.log("Should not have happened");
+            }
 
-        const [dest, orig] = movesStack.pop();
-        playMove(orig, dest, true);
-
-        if (state.treeMoves.parent){
-            state.treeMoves = state.treeMoves.parent;
-        }else{
-            console.log("Should not have happened");
+            poStack.pop();
         }
 
         cg.setAutoShapes([]);
-        poStack.pop();
     }
     
     updateState();

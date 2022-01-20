@@ -12,7 +12,7 @@ public class AppSettings: ObservableObject {
     static let shared = AppSettings()
     
     @AppStorage("color") var color: String = "white"
-    @AppStorage("maxTreeMoves") var maxTreeMoves: Int = 7
+    @AppStorage("maxTreeMoves") var maxTreeMoves: Int = 4
     @AppStorage("ttStartingPosition") var ttStartingPosition: String = ""
     @AppStorage("isPro") var isPro: Bool = false
 }

@@ -104,7 +104,7 @@ s = Stockfish(parameters={"Threads": 4})
 @lru_cache(maxsize=None)
 def evaluate(fen):
     s.set_fen_position(fen)
-    s.set_depth(5)
+    s.set_depth(20)
     evaluation = s.get_evaluation()
     if evaluation['type'] == 'cp':
         rank = evaluation['value']
@@ -147,12 +147,19 @@ def get_moves_starting_at(fen, depth):
                 moves_d[m] = True
                 fen_after_move = b.fen()
 
-                result.append({
-                    'move': m,
-                    'rank': evaluate(fen_after_move),
-                    'openings': fens.get(fen_after_move, []),
-                    'moves': get_moves_starting_at(fen_after_move, depth + 1)
-                })
+                rank = evaluate(fen_after_move)
+                white_turn = depth % 2 == 0
+
+                if (white_turn and rank < -100) or ((not white_turn) and rank > 150):
+                    # Bad move
+                    pass
+                else:
+                    result.append({
+                        'move': m,
+                        'rank': rank,
+                        'openings': fens.get(fen_after_move, []),
+                        'moves': get_moves_starting_at(fen_after_move, depth + 1)
+                    })
 
     return result
 
@@ -160,6 +167,26 @@ moves = get_moves_starting_at(initial_fen, 0)
 
 for o in openings_list:
     del o['uci_transposes']
+
+
+# def prune(moves, depth):
+#     white_turn = depth % 2 == 0
+#     if len(moves) == 0:
+#         return moves
+#     print(depth)
+#     index = [1] * len(moves)
+#     for i in range(0, len(moves)):
+#         if (white_turn and moves[i]['rank'] < -100) or ((not white_turn) and moves[i]['rank'] > 150):
+#             index[i] = 0
+    
+#     moves = [m for i, m in enumerate(moves) if index[i] == 1]
+
+#     for m in moves:
+#         m['moves'] = prune(m['moves'], depth + 1)
+    
+#     return moves
+
+#moves = prune(moves, 0)
 
 output = {
     'openings': openings_list,

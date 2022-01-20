@@ -226,8 +226,35 @@ struct BoardTreeView: View{
                             Text("Max Openings: ").fontWeight(.bold)
                             Text(String(Int(sMaxTreeMoves))).padding(.trailing, 16)
                             Slider(value: $sMaxTreeMoves,
-                                   in: 1...20,
+                                   in: 1...(storeManager.isPro ? 20 : 4),
                                    step: 1)
+                        }
+                        
+                        Spacer()
+                        if !storeManager.isPro{
+                            VStack{
+                                Text("Upgrade to Pro to explore and practice up to 20 openings on the board! It's a one-time purchase and helps support the development of the app ♥")
+                                Button(action: {
+                                    storeManager.purchase()
+                                }, label: {
+                                    if storeManager.purchasing{
+                                        Image(systemName: "hour")
+                                    }else{
+                                        Image(systemName: "bolt.fill")
+                                    }
+                                    Text("Upgrade to Pro")
+                                })
+                                    .disabled(storeManager.purchasing)
+                                .padding()
+                                Button(action: {
+                                    storeManager.restore()
+                                }, label: {
+                                    Image(systemName: "arrow.uturn.forward")
+                                    Text("Restore Purchase")
+                                })
+                            }
+                        }else{
+                            Text("You are using the Pro version. Thanks for the support! ♥")
                         }
                         
                     }.padding(16)
