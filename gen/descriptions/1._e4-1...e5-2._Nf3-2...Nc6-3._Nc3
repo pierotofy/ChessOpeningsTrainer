@@ -1,0 +1,11 @@
+<h1><span id="Three_Knights_Game">Three Knights Game</span></h1>
+<p>Black can copy White's moves with 3...Nf6, leading to a very quiet game.
+</p><p>Other alternatives include bishop moves :
+</p>
+<dl><dd>3...Bb4 is playable, but maybe too early because White can play 4. Nd5 (the knight is not pinned yet).</dd>
+<dd>3...Bc5 is dangerous because White can take the e5 pawn and grab back material with the d4 fork. But it's not really a mistake because Black will be able to take a pawn during the process. In this line, Bxf2+ is playable and does not lose material.</dd></dl><p>It's also possible to play 3...g6. It may prepare f5. It may also transpose into Scotch Game as the d4 counter-attack is often seen.
+</p>
+<p>br><b>1. e4 e5 2. Nf3 Nc6 3. Nc3</b>
+</p>
+<h2><span id="References">References</span></h2>
+<ul><li><i>Nunn's Chess Openings</i>. 1999. John Nunn (Editor), Graham Burgess, John Emms, Joe Gallagher. ISBN 1-8574-4221-0.</li></ul><ul><li><i>Batsford Chess Openings 2</i> (1989, 1994). Garry Kasparov, Raymond Keene. ISBN 0-8050-3409-9.</li></ul>

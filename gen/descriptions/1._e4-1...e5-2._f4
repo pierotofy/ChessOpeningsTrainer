@@ -1,0 +1,16 @@
+<h1><span id="King.27s_Gambit"></span><span id="King's_Gambit">King's Gambit</span></h1>
+<p>White's pawn on f4 is attacked, which is the whole point of the King's Gambit. A gambit - which is not the same thing as an opening - involves a sacrifice of material (chess pieces, usually pawns) for positional gain. In this case, White wants to tempt Black's pawn away from the centre onto f4, which would allow White the freedom to play d4 and e5. The move d4 will then uncover an attack by the c1-bishop on Black's f4-pawn, and Black will have to make further non-developing moves to save it.
+</p><p>Unfortunately for White, after Black <i>accepts the gambit</i> with 
+</p>
+<ul><li><b>2...exf4</b>,</li></ul>
+<p>White can't just triumphantly play 3.d4. This is because the move 2.f4 also weakened the diagonal e1-h4, which has White's king on it, and then 2...exf4 weakened it further by controlling the g3 square. So Black can respond with 3...Qh4+! and since blocking with g2-g3 is hopeless thanks to the Black pawn that's now on f4, White's king is forced out to the second rank in the opening, which is not usually where you want it (diagram left).
+</p><p>That pesky queen check on h4 is the main reason the King's Gambit doesn't just win the game for White after two moves. On the contrary, the reply 2...exf4 has virtually banished the once extremely popular King's Gambit from high-level chess, to the disappointment of many a swashbuckling attacker.
+</p><p>It's also possible for Black to decline the gambit.
+</p>
+<ul><li><b>2...Bc5</b> is the usual way of doing so, taking advantage of the fact that Black's e-pawn isn't really threatened (3.fxe5? gets hit by 3...Qh4+! again). Black makes sure that White won't be able to play d4 or to castle kingside without going to some considerable effort to shift the bishop from its new diagonal.</li>
+<li><b>2...d5</b> gives the position a different flavour. Normally Black only manages to get in one of the moves ...e5 and ...d5 this early in the opening, but since 2.f4 did nothing to prevent ...d5, why not play it now? Since it attacks the undefended e-pawn, Black will still get to take one of White's pawns if she wants to.</li>
+<li>Black could also reasonably play <b>2...Nc6</b>, a variation that is rarely explored.</li></ul>
+<p><b>1.e4 e5 2.f4</b>
+</p>
+<h2><span id="References">References</span></h2>
+<ul><li><i>Nunn's Chess Openings</i>. 1999. John Nunn (Editor), Graham Burgess, John Emms, Joe Gallagher. ISBN 1-8574-4221-0.</li></ul><ul><li><i>Batsford Chess Openings 2</i> (1989, 1994). Garry Kasparov, Raymond Keene. ISBN 0-8050-3409-9.</li></ul>

@@ -1,0 +1,19 @@
+<h1><span id="Two_Knights_Defence">Two Knights Defence</span></h1>
+<h3><span id="4._Ng5">4. Ng5</span></h3>
+<p>This move is interesting. While some in the past considered it ridiculous, others point out that White wins a pawn in the process.
+</p><p>The White Knight now threatens a fork with Nxf7, yet to do so it's broken a rule of opening development in that the same piece moves twice. Black's only sensible way to defend f7 is to block the bishop's access with 4...d5, but the pawn on d5 itself is not fully defensible by Black.
+</p><p>Black has two sensible replies.
+</p>
+<dl><dd><ul><li>4...d5 The best way for Black to defend is to play d5, blocking the bishop from the weak f7 square.</li>
+<li>4...Bc5 Ignoring the threat, a risky option is the Traxler Attack. Black can try a bishop sacrifice on f2 if White plays Nxf7. Instead, White will often prefer Bxf7+.</li></ul></dd></dl><p>Additionally, black may choose to move the knight on f6. This opens up an attack on the white g5 knight. There are two sensible methods of achieving this:
+</p>
+<dl><dd><ul><li>4...Nxe4.</li>
+<li>4...Nd5.</li></ul></dd></dl>
+<p><b>1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6 4.Ng5</b>
+</p>
+<h2><span id="Statistics">Statistics</span></h2>
+<p>Estimated next move popularity<br>
+d5 80%, Bc5 19%, Others less than 1%
+</p>
+<h2><span id="References">References</span></h2>
+<ul><li><i>Batsford Chess Openings 2</i> (1989, 1994). Garry Kasparov, Raymond Keene. ISBN 0-8050-3409-9.</li></ul><ul><li><i>Nunn's Chess Openings</i>. 1999. John Nunn (Editor), Graham Burgess, John Emms, Joe Gallagher. ISBN 1-8574-4221-0.</li></ul>

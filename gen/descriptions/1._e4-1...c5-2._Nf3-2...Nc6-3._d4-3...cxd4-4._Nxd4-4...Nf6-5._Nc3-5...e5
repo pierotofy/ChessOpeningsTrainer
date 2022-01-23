@@ -1,0 +1,10 @@
+<h1><span id="Sveshnikov_Sicilian">Sveshnikov Sicilian</span></h1>
+<p>Moves: 1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 e5
+</p><p>The variation is named after the Latvian Grandmaster Evgeny Sveshnikov. In the various Najdorf lines where Black plays e5, he gets his desired pawn structure at the cost of leaving his king's bishop stuck behind a pawn on d6. Right now, Black is trying to have his cake and eat it by delaying d6 until the bishop has fled to b4. The standard Najdorf was good enough to be played religiously by Garry Kasparov; White must cut out the threat of ...Bb4 or be faced with an <i>improved</i> Najdorf.
+</p><p>The move that <i>does</i> more or less force ...d6 is Ndb5. The knight threatens to invade the d6 outpost with check. Note that this forks Black's king and c8-bishop, but Black can deal with this easily with 7...Bxd6
+</p><p>Nde2 is the only significant sideline, fortifying the c3 knight to avoid the wrecking of the queenside pawns that would occur after ...Bb4 and ...Bxc3 bxc3. Neither Nb3 nor Nf3 offer anything in particular to compensate for letting the bishop out, Nf5 places the knight on a shaky square that can be instantly exploited with 6...d5! and Nxc6 bxc6 hands control of d5 back to Black.
+</p>
+<p><b>1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 e5</b>
+</p>
+<h2><span id="References">References</span></h2>
+<ul><li><i>Batsford Chess Openings 2</i> (1989, 1994). Garry Kasparov, Raymond Keene. ISBN 0-8050-3409-9.</li></ul>

@@ -1,0 +1,7 @@
+<h2><span id="Bowdler_Attack">Bowdler Attack</span></h2>
+<p>This is a mistake that allows clear equality.  Black's best answer is 2. ...e6 followed by d5 at some point which easily removes White's bishop and gives Black a tempo and clear centre.
+</p><p>For example: 1. e4 c5 2.Bc4 e6 3. Nc3 Nc6 4. Nf3 Nf6 5. O-O d5 6. exd5 exd5 7.Bb3
+</p><p>Black needs to play Nc6 before d5, otherwise the king will be exposed on the a4-e8 diagonal, and therefore inviting a check from White's light square bishop.
+</p><p>It is analogous to some lines in the Italian Game but Black has played the move c5 which helps prevent d4 and makes b3 a less attractive place for the White Bishop (because of c4).
+</p><p>Interestingly, 1. e4 c5 2. Nf3 d6 3. Bc4 (as opposed to the usual 1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 XXX 6. Bc4 where XXX is e6, Nc6, g6 or a6), does not allow for such shenanigans by Black who has no better option but to transpose to a main line open Sicilian where White plays Bc4. In contradistinction to 2. Bc4 where he obtains immediate equality, the only real advantage of 3. Bc4 for Black is that he gets to choose his defence (Dragon, Najdorf, Scheveningen, Classical) with the knowledge that White has committed his bishop to c4. However it may confuse some unwary Black players who feel they should "prove" that White has made an "inaccurate" move.
+</p>

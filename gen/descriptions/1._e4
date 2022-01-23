@@ -1,0 +1,50 @@
+<h2><span id="1._e4_-_King.27s_Pawn_Opening"></span><span id="1._e4_-_King's_Pawn_Opening">1. e4 - King's Pawn Opening</span></h2>
+<p>White's assertive opening move opens lines for the queen and king's bishop and fights for control of the squares d5 and f5. This move is popular at all levels of the game and was the favorite opening move of world champion Bobby Fischer who called it "best by test".
+</p><p>Openings with 1. e4 are traditionally considered more sharp and attacking than those with 1. d4, but this is an extreme generalization and both players will have many more opportunities to influence the type of position that appears.
+</p><p>With a pawn on e4, White's simplest plan is to play d4 on the next move, creating a strong 'classical' center.
+</p>
+<h3><span id="Black.27s_responses"></span><span id="Black's_responses">Black's responses</span></h3>
+<p>It's useful to think of Black's responses to 1. e4 as motivated by one of the following counterplans: 
+</p>
+<ol><li>Establish a pawn on e5, securing a share of the centre for Black.</li>
+<li>Establish a pawn on d5, securing a share of the centre for Black.</li>
+<li>Attack White's e-pawn immediately.</li>
+<li>Leave White's e-pawn alone but prevent White from achieving the classical centre with e4 and d4.</li>
+<li>Ignore what White is doing, allow White to build the classical centre and deal with it later.</li></ol>
+<h4><span id="Plan_1">Plan 1</span></h4>
+<p><b>Plan 1</b> (pawn on e5, share centre) can be carried out very simply with <b>1... e5</b>. Black sees what White has and wants the same thing. However, White's argument is that moving first in a symmetrical position is eventually going to favour the player moving first.
+</p>
+<h4><span id="Plan_2">Plan 2</span></h4>
+<p class="mw-empty-elt"></p><p><b>Plan 2</b> (pawn on d5, share centre) is the motivation behind <b>1... c6</b>, the Caro-Kann Defence, and <b>1... e6</b>, the French Defence. If Black tries to put a pawn on d5 immediately, White will capture it, so in order to maintain a pawn on d5 Black needs to be able to <i>recapture</i> with a pawn from either c6 or e6.
+</p>
+<h4><span id="Plan_3">Plan 3</span></h4>
+<p class="mw-empty-elt"></p><p><b>Plan 3</b> (attack White's e pawn) leads to <b>1... d5</b>, the Scandinavian Defence, and <b>1... Nf6</b>, the Alekhine Defence.
+</p>
+<h4><span id="Plan_4">Plan 4</span></h4>
+<p class="mw-empty-elt"></p><p><b>Plan 4</b> (prevent White's e4 &amp; d4) is a pleasant side effect of 1... e5 (mentioned above for Plan 1).
+</p><p>But, with <b>1... c5</b>, the Sicilian Defence, Black can prevent White's d4 advance and also create an asymmetrical position of attack and counter-attack. The Sicilian is by far the most popular reply to 1. e4 among top players.
+</p>
+<h4><span id="Plan_5">Plan 5</span></h4>
+<p class="mw-empty-elt"></p><p>There are multiple ways of carrying out <b>Plan 5</b> (ignore White's centre, deal with it later). 
+</p>
+<ul><li><b>1... g6</b>, the Modern Defence, signals Black's intention to put a bishop on g7 controlling a swathe of the centre, before deciding on further action.</li>
+<li><b>1... d6</b> is the Pirc Defense.</li></ul><p class="mw-empty-elt"></p><p>In the Pirc Defense, the move 1... d6 prepares the move 2... Nf6. In Alekhine Defence (mentioned above for Plan 3), 1... Nf6 can be met by 2. e5 kicking the knight back. But, in the Pirc, after 1... d6 2. d4 Nf6, the move 3. e5 doesn't work because of 3... dxe5 4. dxe5 Qxd1+ 5. Kxd1 Ng4! forking the pawns on e5 and f2. 
+</p><p>So instead, White's usual move to defend the e-pawn is 3. Nc3. Now, White's d-pawn is vulnerable to the advances 3... c5 or 3... e5, because neither White's e-pawn or c-pawn can defend it.
+</p>
+<p class="mw-empty-elt"></p><p>Plan 5 also covers a number of fringe options. 
+</p>
+<ul><li><b>1... Nc6</b>, the Nimzowitsch Defence. Black is able to react to 2. d4 with a thrust of either the d-pawn or e-pawn.</li></ul><ul><li><b>1... b6</b> is a similar idea to 1... g6 but doesn't have the benefit of preparing kingside castling.</li></ul><ul><li><b>1... a6</b> is mostly famous for having been played by Tony Miles against then World Champion Anatoly Karpov, and having thus acquired the name St. George Defence.</li></ul><h3><span id="Rare_Responses">Rare Responses</span></h3>
+<p>Other rare responses include:
+</p>
+<ul><li><b>1... f6?!</b>, the Barnes Defense. A rare move that is not a good idea, as it removes the f6 square for the knight and weakens the kingside. Even so, Thomas Wilson Barnes (after whom it is named) beat Paul Morphy, one of the most influential grandmasters in the 19th century, with this opening. Its only benefit is that it gets out of theory.</li>
+<li><b>1... f5?!</b>, the Fred Defense/Duras Gambit. This is not too good of an idea. Black gets a lead in development but little compensation for the sacrificed pawn after 2. exf5 Nf6. This can lead to another variation of the Fool's Mate after 2. exf5 g5?? 3. Qh5#</li>
+<li><b>1... b5?</b> simply loses a pawn to 2. Bxb5.</li>
+<li><b>1...g5?!</b>, the Borg Defense (opposite of Grob) is another option Black has, however it is a bad one because it does weaken the kingside severely. The g5-pawn can serve as a hook for White (h4) later on. This also can lead to a Fool's Mate for Black.</li>
+<li><b>1... h5?!</b>, the Pickering Defense simply wastes a tempo and weakens Black's position.</li>
+<li><b>1... a5?!</b>, the Ware Defense is equally weak as 1... h5. It just wastes a tempo.</li>
+<li><b>1... h6?!</b>, the Carr Defense, is another time-wasting move, but it usually transposes into the Borg Defense anyways after 2. d4 g5.</li></ul><h2><span id="Statistics">Statistics</span></h2>
+<dl><dt>Approximate chances</dt>
+<dd>White win 39%, Draw 29%, Black win 32%.</dd></dl><dl><dt>Estimated next move popularity</dt>
+<dd>c5 43%, e5 25%, e6 12%, c6 7%, d6 4%, g6 3%, d5 3%, Nf6 2%, Nc6 0.6%, other moves less than 0.5%.</dd></dl>
+<dl><dd><b>1. e4</b></dd></dl><h2><span id="References">References</span></h2>
+<ul><li><i>Batsford Chess Openings 2</i> (1989, 1994). Garry Kasparov, Raymond Keene. ISBN 0-8050-3409-9.</li></ul><ul><li><i>Nunn's Chess Openings</i>. 1999. John Nunn (Editor), Graham Burgess, John Emms, Joe Gallagher. ISBN 1-8574-4221-0.</li></ul><ul><li><i>Modern Chess Openings: MCO-14</i>. 1999. Nick de Firmian, Walter Korn. ISBN 0-8129-3084-3.</li></ul>
