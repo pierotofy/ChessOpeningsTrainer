@@ -48,6 +48,7 @@
 		6D66C7972762FE1C00882CC4 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		6D66C799276301D500882CC4 /* OpeningsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpeningsModel.swift; sourceTree = "<group>"; };
 		6D66C79B2765A45000882CC4 /* gen */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gen; path = ../gen; sourceTree = "<group>"; };
+		6D773F9F279DE8C10054AFBE /* chessopeningstrainer--iOS--Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "chessopeningstrainer--iOS--Info.plist"; sourceTree = "<group>"; };
 		6DB389F02783EEE900DB3A07 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
 		6DB389F427935ED900DB3A07 /* OpeningMovesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpeningMovesModel.swift; sourceTree = "<group>"; };
 		6DB389F727937CAA00DB3A07 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -77,6 +78,7 @@
 		6D66C75A275DAF8700882CC4 = {
 			isa = PBXGroup;
 			children = (
+				6D773F9F279DE8C10054AFBE /* chessopeningstrainer--iOS--Info.plist */,
 				6DB389F927937CC600DB3A07 /* StoreManager.swift */,
 				6DB389F02783EEE900DB3A07 /* ColorExtension.swift */,
 				6DEB281B27826ABF002514C2 /* SOViewItem.swift */,
@@ -343,14 +345,16 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "chessopeningstrainer (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A43476BK95;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "chessopeningstrainer--iOS--Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UIStatusBarHidden = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
@@ -377,14 +381,16 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "chessopeningstrainer (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A43476BK95;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "chessopeningstrainer--iOS--Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UIStatusBarHidden = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
