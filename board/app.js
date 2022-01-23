@@ -46,6 +46,7 @@ let treeOpenings = [];
 const pieceStack = [];
 const movesStack = [];
 const poStack = [];
+const memory = {};
 
 // Webkit
 let _sendMessage = (key, value) => {
@@ -305,8 +306,9 @@ const afterPlayerMove = (orig, dest, autoMove) => {
         const treeMove = state.treeMoves.find(tm => tm.move === `${orig}${dest}`);
         const prevTree = state.treeMoves;
 
-        if (!treeMove) flash("Completed");
-        else{
+        if (!treeMove){
+            treeTrainCompleted();
+        }else{
             const currentOp = findCurrentOpening(treeMove, true);
 
             if (currentOp){
@@ -317,7 +319,9 @@ const afterPlayerMove = (orig, dest, autoMove) => {
             
             state.treeMoves = topTreeMoves(treeMove.moves, currentTurn());
             state.treeMoves.parent = prevTree;
-            if (state.treeMoves.length === 0) flash("Completed");
+            if (state.treeMoves.length === 0){
+                treeTrainCompleted();
+            }
             drawTreeMoves();
         }
     }else if (state.mode === "treetrain"){
@@ -348,8 +352,7 @@ const afterPlayerMove = (orig, dest, autoMove) => {
             state.treeMoves.parent = prevTree;
 
             if (state.treeMoves.length === 0){
-                flash("Completed");
-                // confettiToss(true);
+                treeTrainCompleted();
             }else{
                 if (!autoMove){
                     if (rankId === 0) flash("Best");
@@ -402,8 +405,12 @@ const playTrainComputerMove = () => {
     if (filteredRanks.length === 0) filteredRanks = ranks.filter(r => computerIsWhite ? (r.rank < 0) : (r.rank < 80));
     
     let moveId;
-    if (filteredRanks.length > 0) moveId = state.treeMoves.map(tm => tm.move).indexOf(filteredRanks[Math.floor(Math.random() * filteredRanks.length)].move);
-    else moveId = Math.floor(Math.random() * state.treeMoves.length);
+    if (filteredRanks.length > 0){
+        let rankedId = (memory[movesStack.length]++) % filteredRanks.length;
+        moveId = state.treeMoves.map(tm => tm.move).indexOf(filteredRanks[rankedId].move);
+    }else{
+        moveId = (memory[movesStack.length]++) % state.treeMoves.length;
+    }
 
     const move = uciToMove(state.treeMoves[moveId].move);
     playMove(move[0], move[1]);
@@ -564,7 +571,7 @@ const playForward = () => {
 
 const playBack = () => {
     if (movesStack.length <= 0) return;
-    if (movesStack.length <= 1 && color === "black") return;
+    if (movesStack.length <= 1 && color === "black" && state.mode !== "tree") return;
 
     if (state.resetBoardOnTap){
         state.resetBoardOnTap = false;
@@ -590,19 +597,22 @@ const playBack = () => {
             }else{
                 console.log("Should not have happened");
             }
-    
-            poStack.pop();
             
-            const [dest, orig] = movesStack.pop();
-            playMove(orig, dest, true);
-
-            if (state.treeMoves.parent){
-                state.treeMoves = state.treeMoves.parent;
-            }else{
-                console.log("Should not have happened");
-            }
-
             poStack.pop();
+
+            if (currentTurn() !== color){
+                const [dest, orig] = movesStack.pop();
+                playMove(orig, dest, true);
+    
+                if (state.treeMoves.parent){
+                    state.treeMoves = state.treeMoves.parent;
+                }else{
+                    console.log("Should not have happened");
+                }
+    
+                poStack.pop();
+            }
+        
         }
 
         cg.setAutoShapes([]);
@@ -649,6 +659,7 @@ const toggleColor = () => {
     }
     
     if (mode === "training") setTrainingMode();
+    if (mode === "treetrain") setTreeTrainMode();
     else updateCg();
     
     _sendMessage("toggledColor", color);
@@ -709,6 +720,12 @@ const setTrainingMode = () => {
     _sendMessage("setMode", state.mode);
 };
 
+const treeTrainCompleted = () => {
+    flash("Completed");
+    showOverlay();
+    state.resetBoardOnTap = true;
+}
+
 const setExploreMode = () => {
     state.mode = "explore";
     showOverlay();
@@ -749,7 +766,7 @@ const flash = (text) => {
 
 const showHint = () => {
     setTimeout(() => {
-        if (state.mode === "treetrain"){
+        if (state.mode === "treetrain" && state.treeMoves.length > 0){
             state.showingHint = true;
             drawTreeMoves();
         }
@@ -854,6 +871,12 @@ const playTreeTrainInitMoves = () => {
     }
 };
 
+const initializeMemory = () => {
+    for (let i = 0; i < 30; i++){
+        memory[i] = Math.floor(Math.random() * 20);
+    }
+}
+
 const setTreeTrainMode = () => {
     loadOpeningsTree((ops) => {
         const { openings, moves } = ops;
@@ -866,6 +889,7 @@ const setTreeTrainMode = () => {
         state.canPlayBack = false;
         state.canPlayForward = false;
         hideOverlay();
+        initializeMemory();
         
         playTreeTrainInitMoves();
         if ((uci && ((color === "black" && uci.split(" ").length % 2 == 0) || 
