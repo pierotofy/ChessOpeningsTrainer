@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Chess Openings Trainer</string>
+    <string name="title_explore">Explore</string>
+    <string name="title_practice">Practice</string>
+    <string name="title_list">List</string>
+    <string name="back">Back</string>
+    <string name="rewind">Rewind</string>
+</resources>

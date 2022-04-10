@@ -45,7 +45,7 @@ html,body{
 .rank{
     font-weight: bold;
     font-size: 180%;
-    font-family: -apple-system-body;
+    font-family: -apple-system-body, roboto;
     text-shadow: -4px 0 white, 0 4px white, 4px 0 white, 0 -4px white;
 }
 
@@ -58,7 +58,7 @@ html,body{
     justify-content: center;
     font-weight: bold;
     font-size: 220%;
-    font-family: -apple-system-body;
+    font-family: -apple-system-body, roboto;
     z-index: 3;
     position: absolute;
     top: 46%;
@@ -92,3 +92,7 @@ html,body{
       top: 55%;
     }
   }
+
+html.android .rank{
+    text-shadow: none;
+}
